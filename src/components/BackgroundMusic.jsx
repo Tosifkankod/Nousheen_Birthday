@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BackgroundMusic() {
   const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  // Default is ON
+  const [isPlaying, setIsPlaying] = useState(true);
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -14,40 +14,38 @@ export default function BackgroundMusic() {
     audio.volume = 0.55;
     audio.loop = true;
 
-    // Attempt autoplay
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(() => {
-          // Autoplay was prevented by browser policy (common on mobile)
-          setIsPlaying(false);
-        });
-    }
+    // 1. Try immediate autoplay
+    const tryPlay = () => {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(() => {
+            // Autoplay delayed by browser until user touches screen
+            setIsPlaying(true); // Keep state as "On" so UI shows Music On
+          });
+      }
+    };
 
-    // Auto-start on first touch/click anywhere on page
-    const startAudioOnFirstTouch = () => {
+    tryPlay();
+
+    // 2. Fallback for mobile: unlock audio on her very first touch/scroll
+    const unlockOnFirstTouch = () => {
       if (audio && audio.paused) {
         audio.play().then(() => {
           setIsPlaying(true);
-          setHasInteracted(true);
         }).catch(() => {});
       }
-      window.removeEventListener('click', startAudioOnFirstTouch);
-      window.removeEventListener('touchstart', startAudioOnFirstTouch);
-      window.removeEventListener('pointerdown', startAudioOnFirstTouch);
+      events.forEach(evt => window.removeEventListener(evt, unlockOnFirstTouch));
     };
 
-    window.addEventListener('click', startAudioOnFirstTouch, { once: true });
-    window.addEventListener('touchstart', startAudioOnFirstTouch, { once: true });
-    window.addEventListener('pointerdown', startAudioOnFirstTouch, { once: true });
+    const events = ['click', 'touchstart', 'touchend', 'pointerdown', 'scroll', 'keydown'];
+    events.forEach(evt => window.addEventListener(evt, unlockOnFirstTouch, { once: true, passive: true }));
 
     return () => {
-      window.removeEventListener('click', startAudioOnFirstTouch);
-      window.removeEventListener('touchstart', startAudioOnFirstTouch);
-      window.removeEventListener('pointerdown', startAudioOnFirstTouch);
+      events.forEach(evt => window.removeEventListener(evt, unlockOnFirstTouch));
     };
   }, []);
 
@@ -56,13 +54,14 @@ export default function BackgroundMusic() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
+    if (isPlaying && !audio.paused) {
       audio.pause();
       setIsPlaying(false);
     } else {
       audio.play().then(() => {
         setIsPlaying(true);
-      }).catch(err => console.log('Audio play blocked', err));
+      }).catch(err => console.log('Audio play error', err));
+      setIsPlaying(true);
     }
 
     setShowToast(true);
@@ -74,10 +73,12 @@ export default function BackgroundMusic() {
       <audio
         ref={audioRef}
         src="/bg-music.mp3"
+        autoPlay
+        loop
         preload="auto"
       />
 
-      {/* Floating Music Toggle Pill (Mobile & Desktop) */}
+      {/* Floating Music Toggle Pill */}
       <div
         style={{
           position: 'fixed',
