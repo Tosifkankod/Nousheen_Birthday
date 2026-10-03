@@ -13,9 +13,9 @@ export const DAYS = [
   {
     day: 2,
     date: '2026-10-02',
-    title: '10 Things I Like About You',
+    title: 'A Little Game & A Promise',
     emoji: '💌',
-    type: 'reasons',
+    type: 'interactive-letter',
     unlocked: true,
   },
   {
