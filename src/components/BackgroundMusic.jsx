@@ -1,11 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BackgroundMusic() {
+  const location = useLocation();
   const audioRef = useRef(null);
   // Default is ON
   const [isPlaying, setIsPlaying] = useState(true);
   const [showToast, setShowToast] = useState(false);
+
+  // Day 3 is a dedicated cinematic film & video experience (requires no home bg music)
+  const isDay3 = location.pathname === '/day/3';
+
+  // Handle route changes: pause immediately on Day 3
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isDay3) {
+      if (!audio.paused) {
+        audio.pause();
+      }
+    } else if (isPlaying && audio.paused) {
+      audio.play().catch(() => {});
+    }
+  }, [isDay3, isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -13,6 +32,11 @@ export default function BackgroundMusic() {
 
     audio.volume = 0.55;
     audio.loop = true;
+
+    // Do not autoplay on Day 3
+    if (isDay3) {
+      return;
+    }
 
     // 1. Try immediate autoplay
     const tryPlay = () => {
@@ -33,7 +57,7 @@ export default function BackgroundMusic() {
 
     // 2. Fallback for mobile: unlock audio on her very first touch/scroll
     const unlockOnFirstTouch = () => {
-      if (audio && audio.paused) {
+      if (audio && audio.paused && !isDay3) {
         audio.play().then(() => {
           setIsPlaying(true);
         }).catch(() => {});
@@ -47,7 +71,7 @@ export default function BackgroundMusic() {
     return () => {
       events.forEach(evt => window.removeEventListener(evt, unlockOnFirstTouch));
     };
-  }, []);
+  }, [isDay3]);
 
   const toggleMusic = (e) => {
     e.stopPropagation();
@@ -73,20 +97,20 @@ export default function BackgroundMusic() {
       <audio
         ref={audioRef}
         src="/bg-music.mp3"
-        autoPlay
         loop
         preload="auto"
       />
 
-      {/* Floating Music Toggle Pill */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 'max(1.2rem, calc(env(safe-area-inset-bottom) + 0.8rem))',
-          right: 'max(1.2rem, calc(env(safe-area-inset-right) + 0.8rem))',
-          zIndex: 9990,
-        }}
-      >
+      {/* Floating Music Toggle Pill (hidden on Day 3 for cinematic story & direct video audio) */}
+      {!isDay3 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 'max(1.2rem, calc(env(safe-area-inset-bottom) + 0.8rem))',
+            right: 'max(1.2rem, calc(env(safe-area-inset-right) + 0.8rem))',
+            zIndex: 9990,
+          }}
+        >
         <motion.button
           onClick={toggleMusic}
           whileHover={{ scale: 1.06 }}
@@ -158,6 +182,7 @@ export default function BackgroundMusic() {
           )}
         </AnimatePresence>
       </div>
-    </>
-  );
+    )}
+  </>
+);
 }

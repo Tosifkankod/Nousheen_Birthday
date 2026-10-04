@@ -21,10 +21,10 @@ export const DAYS = [
   {
     day: 3,
     date: '2026-10-03',
-    title: 'This Song',
-    emoji: '🎧',
-    type: 'song',
-    unlocked: false,
+    title: 'A Little More Light',
+    emoji: '🌅',
+    type: 'cinematic-story',
+    unlocked: true,
   },
   {
     day: 4,
