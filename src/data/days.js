@@ -29,10 +29,10 @@ export const DAYS = [
   {
     day: 4,
     date: '2026-10-04',
-    title: 'Our Timeline',
-    emoji: '📸',
-    type: 'timeline',
-    unlocked: false,
+    title: 'One Perfect Day With You',
+    emoji: '✨',
+    type: 'simulation',
+    unlocked: true,
   },
   {
     day: 5,

@@ -824,3 +824,115 @@ body::before {
   50% { height: 13px; }
   100% { height: 6px; }
 }
+
+/* ============ DAY 04: ONE PERFECT DAY WITH YOU ============ */
+@keyframes steamRise {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-12px) scaleX(1.3) rotate(4deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-24px) scaleX(1.6) rotate(-4deg);
+    opacity: 0;
+  }
+}
+
+.animate-steam-1 {
+  animation: steamRise 2.4s ease-out infinite;
+}
+
+.animate-steam-2 {
+  animation: steamRise 2.8s ease-out infinite 0.7s;
+}
+
+.animate-steam-3 {
+  animation: steamRise 3.1s ease-out infinite 1.4s;
+}
+
+@keyframes callPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+    transform: scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(74, 222, 128, 0);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    transform: scale(1);
+  }
+}
+
+.animate-call-pulse {
+  animation: callPulse 1.8s infinite;
+}
+
+@keyframes glowLineTraveling {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.glowing-dash-line {
+  stroke-dasharray: 8 6;
+  animation: glowLineTraveling 2s linear infinite;
+}
+
+.day4-glass-card {
+  background: rgba(22, 22, 26, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.day4-glass-card:hover {
+  border-color: rgba(232, 99, 122, 0.3);
+  box-shadow: 0 16px 40px -8px rgba(232, 99, 122, 0.15);
+}
+
+.day4-choice-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--white);
+  padding: 0.95rem 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.day4-choice-btn:hover {
+  background: rgba(232, 99, 122, 0.1);
+  border-color: rgba(232, 99, 122, 0.4);
+  transform: translateY(-2px);
+}
+
+.day4-choice-btn:active {
+  transform: scale(0.98);
+}
+
+.day4-choice-btn.selected {
+  background: linear-gradient(135deg, rgba(232, 99, 122, 0.2), rgba(201, 169, 110, 0.12));
+  border-color: var(--rose-light);
+  box-shadow: 0 0 20px rgba(232, 99, 122, 0.25);
+}
+
