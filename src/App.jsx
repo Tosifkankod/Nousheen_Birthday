@@ -12,7 +12,9 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/day/:dayNumber" element={<DayRouter />} />
         <Route path="/day4-responses" element={<AdminDay4 />} />
+        <Route path="/admin" element={<AdminDay4 />} />
         <Route path="/admin/day4" element={<AdminDay4 />} />
+        <Route path="/admin/day5" element={<AdminDay4 />} />
       </Routes>
     </>
   );

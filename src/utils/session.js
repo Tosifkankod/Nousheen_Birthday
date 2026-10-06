@@ -35,42 +35,54 @@ export function getDeviceInfo() {
   };
 }
 
-// Retrieve or create a persistent session for Day 4
-export function getOrCreateSessionId() {
+// Retrieve or create a persistent session for any day (default: 4)
+export function getOrCreateSessionId(day = 4) {
   if (typeof window === 'undefined') return 'server_session';
 
-  let sessionId = localStorage.getItem(SESSION_KEY);
+  const sessionKey = `day${day}_session_id`;
+  const startedKey = `day${day}_started_at`;
+
+  let sessionId = localStorage.getItem(sessionKey);
   if (!sessionId) {
-    sessionId = generateId('day4');
-    localStorage.setItem(SESSION_KEY, sessionId);
-    localStorage.setItem(STARTED_KEY, new Date().toISOString());
+    sessionId = generateId(`day${day}`);
+    localStorage.setItem(sessionKey, sessionId);
+    localStorage.setItem(startedKey, new Date().toISOString());
   }
   return sessionId;
 }
 
 // Get started timestamp
-export function getSessionStartedAt() {
-  return localStorage.getItem(STARTED_KEY) || new Date().toISOString();
+export function getSessionStartedAt(day = 4) {
+  const startedKey = `day${day}_started_at`;
+  return localStorage.getItem(startedKey) || new Date().toISOString();
 }
 
 // Mark session as completed
-export function markSessionCompleted() {
+export function markSessionCompleted(day = 4) {
+  const completedKey = `day${day}_completed_at`;
   const completedAt = new Date().toISOString();
-  localStorage.setItem(COMPLETED_KEY, completedAt);
-  localStorage.setItem('day4_completed', 'true');
+  localStorage.setItem(completedKey, completedAt);
+  localStorage.setItem(`day${day}_completed`, 'true');
   return completedAt;
 }
 
 // Check completion
-export function getSessionCompletedAt() {
-  return localStorage.getItem(COMPLETED_KEY);
+export function getSessionCompletedAt(day = 4) {
+  const completedKey = `day${day}_completed_at`;
+  return localStorage.getItem(completedKey);
 }
 
-// Reset session (for replay/testing if explicitly invoked)
-export function resetSession() {
-  const newId = generateId('day4');
-  localStorage.setItem(SESSION_KEY, newId);
-  localStorage.setItem(STARTED_KEY, new Date().toISOString());
-  localStorage.removeItem(COMPLETED_KEY);
+// Reset session (for replay/testing)
+export function resetSession(day = 4) {
+  const sessionKey = `day${day}_session_id`;
+  const startedKey = `day${day}_started_at`;
+  const completedKey = `day${day}_completed_at`;
+  
+  const newId = generateId(`day${day}`);
+  localStorage.setItem(sessionKey, newId);
+  localStorage.setItem(startedKey, new Date().toISOString());
+  localStorage.removeItem(completedKey);
+  localStorage.removeItem(`day${day}_completed`);
   return newId;
 }
+

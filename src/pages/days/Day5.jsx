@@ -1,206 +1,516 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarField from '../../components/StarField';
 import DayNav from '../../components/DayNav';
-import { QUIZ_QUESTIONS } from '../../data/days';
+import { saveResponse } from '../../services/responseService';
+import { getOrCreateSessionId } from '../../utils/session';
+
+// Sound tone synthesizer
+function playTone(freq = 440, type = 'sine', duration = 0.4, gainVal = 0.08) {
+  try {
+    if (typeof window === 'undefined') return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    // Ignore audio failures
+  }
+}
+
+function triggerHaptic(pattern = 50) {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch {
+    // Ignore
+  }
+}
 
 export default function Day5() {
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+  const [hugCount, setHugCount] = useState(0);
+  const [hugBurst, setHugBurst] = useState(false);
+  const [activeHeartBeat, setActiveHeartBeat] = useState(false);
+  const [userNote, setUserNote] = useState('');
+  const [isNoteSaved, setIsNoteSaved] = useState(false);
 
-  const q = QUIZ_QUESTIONS[current];
+  useEffect(() => {
+    const id = getOrCreateSessionId(5);
+    setSessionId(id);
 
-  const handleSelect = (optionIdx) => {
-    if (selected !== null) return;
-    setSelected(optionIdx);
-    const isCorrect = optionIdx === q.correct;
-    if (isCorrect) setScore(s => s + 1);
-  };
+    try {
+      const savedHugs = localStorage.getItem('day5_hugs_count');
+      if (savedHugs) setHugCount(parseInt(savedHugs, 10));
 
-  const next = () => {
-    if (current < QUIZ_QUESTIONS.length - 1) {
-      setCurrent(c => c + 1);
-      setSelected(null);
-    } else {
-      setDone(true);
+      const savedNote = localStorage.getItem('day5_nousheen_note');
+      if (savedNote) {
+        setUserNote(savedNote);
+        setIsNoteSaved(true);
+      }
+    } catch (e) {
+      console.warn('Could not restore day 5 data', e);
     }
+  }, []);
+
+  const handleHug = () => {
+    const nextHugs = hugCount + 1;
+    setHugCount(nextHugs);
+    setHugBurst(true);
+    setActiveHeartBeat(true);
+    playTone(520 + (nextHugs % 8) * 40, 'sine', 0.5, 0.12);
+    triggerHaptic([40, 30, 80]);
+
+    localStorage.setItem('day5_hugs_count', nextHugs.toString());
+    setTimeout(() => setHugBurst(false), 900);
+    setTimeout(() => setActiveHeartBeat(false), 600);
+
+    saveResponse({
+      sessionId,
+      day: 5,
+      questionId: 'day5_tight_hug',
+      question: 'Tightly Hugged Tosif',
+      optionId: `hug_${nextHugs}`,
+      answer: `Hugged ${nextHugs} times`,
+    });
   };
 
-  const retry = () => {
-    setCurrent(0);
-    setSelected(null);
-    setScore(0);
-    setDone(false);
+  const handleSaveNote = () => {
+    if (!userNote.trim()) return;
+    localStorage.setItem('day5_nousheen_note', userNote);
+    setIsNoteSaved(true);
+    playTone(660, 'sine', 1.0, 0.1);
+    triggerHaptic([80, 50, 100]);
+
+    saveResponse({
+      sessionId,
+      day: 5,
+      questionId: 'day5_nousheen_note',
+      question: "Nousheen's Reply to Tosif",
+      optionId: 'direct_note',
+      answer: userNote,
+    });
   };
 
   return (
-    <div className="page" style={{ minHeight: '100dvh', paddingTop: 'max(5rem, calc(env(safe-area-inset-top) + 4rem))', paddingBottom: 'max(3rem, calc(env(safe-area-inset-bottom) + 2rem))' }}>
+    <div
+      className="page"
+      style={{
+        minHeight: '100dvh',
+        paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 3.5rem))',
+        paddingBottom: 'max(4rem, calc(env(safe-area-inset-bottom) + 2rem))',
+        background: 'radial-gradient(circle at 50% 10%, #170d1e 0%, #08060d 50%, #030205 100%)',
+      }}
+    >
       <StarField />
       <DayNav dayNumber={5} />
-      <div className="orb orb-1" aria-hidden="true" />
 
-      <div className="page-content z-1">
+      {/* Floating Ambient Light */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '8%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '320px',
+          height: '320px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(232, 99, 122, 0.15) 0%, rgba(201, 169, 110, 0.08) 50%, transparent 70%)',
+          filter: 'blur(50px)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      <div className="page-content z-1" style={{ maxWidth: '620px', margin: '0 auto', padding: '0 1rem' }}>
+        
+        {/* DAY TAG */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-3"
+        >
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-2"
+            style={{
+              background: 'rgba(232, 99, 122, 0.1)',
+              border: '1px solid rgba(232, 99, 122, 0.3)',
+              fontSize: '0.72rem',
+              letterSpacing: '0.15em',
+              color: 'var(--gold, #c9a96e)',
+              textTransform: 'uppercase',
+            }}
+          >
+            <span>🌙</span>
+            <span>DAY 05 • OCTOBER 05</span>
+            <span>🌙</span>
+          </div>
+        </motion.div>
+
+        {/* 1. GIGANTIC ANIMATED NOUHSHEEEEEEEEEEN WITH SCREEN RUMBLE */}
+        <motion.div
+          animate={{
+            x: [-2, 2, -3, 3, -1, 1, 0],
+            y: [-1, 1, -2, 2, 0],
+          }}
+          transition={{ repeat: Infinity, duration: 0.4 }}
+          className="text-center mb-3"
+        >
+          <motion.h1
+            animate={{
+              scale: [1, 1.03, 1],
+              color: ['#ff4d6d', '#ffd166', '#e8637a', '#ff4d6d'],
+            }}
+            transition={{ repeat: Infinity, duration: 2.5 }}
+            style={{
+              fontFamily: 'var(--font-sans, sans-serif)',
+              fontWeight: 900,
+              fontSize: 'clamp(1.5rem, 6.2vw, 2.5rem)',
+              letterSpacing: '0.04em',
+              lineHeight: 1.15,
+              wordBreak: 'break-all',
+              textShadow: '0 0 25px rgba(232, 99, 122, 0.8), 0 0 45px rgba(255, 77, 109, 0.4)',
+            }}
+          >
+            NOUHSHEEEEEEEEEEEEEEEEEEEEN!
+          </motion.h1>
+
+          {/* Animated Emotional Crying & Butterfly Emojis */}
+          <div className="flex items-center justify-center gap-2 mt-2" style={{ fontSize: '2.2rem' }}>
+            <motion.span
+              animate={{ y: [0, -6, 0], rotate: [-8, 8, -8] }}
+              transition={{ repeat: Infinity, duration: 1.2 }}
+            >
+              😭
+            </motion.span>
+            <motion.span
+              animate={{ scale: [1, 1.25, 1] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+            >
+              ❤️
+            </motion.span>
+            <motion.span
+              animate={{ y: [0, -6, 0], rotate: [8, -8, 8] }}
+              transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }}
+            >
+              🥺
+            </motion.span>
+            <motion.span
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
+            >
+              ✨
+            </motion.span>
+            <motion.span
+              animate={{ x: [-4, 4, -4], y: [-3, 3, -3] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              🦋
+            </motion.span>
+          </div>
+        </motion.div>
+
+        {/* 2. THE MAIN EMOTIONAL LETTER (ALL IN ONE BEAUTIFUL INTERACTIVE CARD) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-4"
+          transition={{ duration: 0.6 }}
+          className="card mb-4"
+          style={{
+            background: 'linear-gradient(180deg, rgba(28, 18, 38, 0.95) 0%, rgba(12, 9, 18, 0.95) 100%)',
+            border: '1px solid rgba(232, 99, 122, 0.35)',
+            borderRadius: '1.25rem',
+            padding: '1.65rem 1.4rem',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+            position: 'relative',
+          }}
         >
-          <p className="mono dim mb-2" style={{ letterSpacing: '0.2em', fontSize: '0.7rem' }}>
-            OCTOBER 05 — DAY FIVE
-          </p>
-          <h1 className="heading mb-2">How Well Do You Know Me?</h1>
-          <p className="subheading">5 questions. Be honest. 😂</p>
+          {/* Header Tag */}
+          <div className="flex items-center justify-between pb-3 mb-3 border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontStyle: 'italic',
+                color: 'var(--gold, #c9a96e)',
+                fontSize: '1.05rem',
+              }}
+            >
+              This is how much I love you...
+            </span>
+            <span style={{ fontSize: '1.4rem' }}>💌</span>
+          </div>
+
+          {/* Letter Body - Grammar Polished & Deeply Emotional */}
+          <div
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'rgba(255, 255, 255, 0.92)',
+              fontSize: 'clamp(0.98rem, 3.2vw, 1.08rem)',
+              lineHeight: 1.85,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <p>
+              <strong style={{ color: 'var(--rose-light)' }}>You are my first love, Nousheen.</strong> My first and my only. I really, truly want to pull you into the tightest hug, my bacha... I want to lift you up off your feet and go round and round until the entire world stops spinning and only your laughter remains.
+            </p>
+
+            <p>
+              I know you have lots of hopes from me, and I carry so many hopes for us too. <strong style={{ color: 'var(--gold)' }}>You are my bacha... I see my entire world inside you.</strong> I want to give you back every single piece of happiness that you ever lost, and every ounce of joy and peace you truly deserve.
+            </p>
+
+            <p>
+              In front of you, I am literally like a baby. I have never cried for anyone in this entire world... but with you, my heart melts. <em>You are the one who took a boy and made me into a man.</em>
+            </p>
+
+            <p>
+              You are my girl, and I feel so deeply proud every single time I say that. I know this is a very tough time right now, and I know you’ve been thinking about lots of heavy stuff... I don't know the exact depth of how much you love me, <strong style={{ color: '#ff4d6d' }}>but you are my entire universe.</strong>
+            </p>
+
+            {/* Battle Vow & Butterfly Feelings */}
+            <div
+              style={{
+                background: 'rgba(201, 169, 110, 0.12)',
+                border: '1px solid rgba(201, 169, 110, 0.35)',
+                borderRadius: '0.85rem',
+                padding: '1rem',
+                marginTop: '0.5rem',
+                color: '#fff',
+                fontSize: '0.92rem',
+                lineHeight: 1.65,
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              <p style={{ marginBottom: '0.5rem' }}>
+                <strong style={{ color: 'var(--rose)' }}>😭❤️ I have never been this happy in my life:</strong> I still feel butterflies every single time I think of you!
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong style={{ color: 'var(--gold)' }}>⚔️ And listen to me:</strong> I will literally FIGHT THE ENTIRE WORLD FOR YOU! 😤🤺 Anyone or anything that tries to steal your smile has to deal with me first!
+              </p>
+            </div>
+          </div>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          {!done ? (
-            <motion.div
-              key={`q-${current}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.35 }}
+        {/* 3. THE TIGHT HUG ARTWORK & INTERACTIVE HUG BUTTON */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="card mb-4"
+          style={{
+            padding: '1rem',
+            background: 'rgba(15, 10, 22, 0.9)',
+            border: '1px solid rgba(201, 169, 110, 0.4)',
+            borderRadius: '1.25rem',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <div style={{ position: 'relative', borderRadius: '0.85rem', overflow: 'hidden' }}>
+            <motion.img
+              animate={{
+                scale: activeHeartBeat ? 1.04 : 1,
+              }}
+              transition={{ duration: 0.3 }}
+              src="/images/tight_hug.jpg"
+              alt="Tosif and Nousheen in a tight, emotional embrace under the starry sky"
+              style={{
+                width: '100%',
+                maxHeight: '380px',
+                objectFit: 'cover',
+                borderRadius: '0.85rem',
+                display: 'block',
+              }}
+            />
+
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, transparent 65%, rgba(10, 7, 15, 0.9) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+
+          <div className="mt-3 text-center">
+            <p
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '1rem',
+                color: 'var(--gold, #c9a96e)',
+                fontStyle: 'italic',
+                marginBottom: '0.75rem',
+              }}
             >
-              {/* Progress */}
-              <div className="flex gap-1 mb-3">
-                {QUIZ_QUESTIONS.map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      flex: 1,
-                      height: '3px',
-                      borderRadius: '2px',
-                      background: i < current
-                        ? 'var(--rose)'
-                        : i === current
-                        ? 'rgba(232, 99, 122, 0.5)'
-                        : 'var(--border)',
-                      transition: 'background 0.3s',
-                    }}
-                  />
-                ))}
-              </div>
+              "Held in my arms forever. My safest place, my Pari." 🤍
+            </p>
 
-              <p className="mono dim mb-2" style={{ fontSize: '0.75rem' }}>
-                Question {current + 1} of {QUIZ_QUESTIONS.length}
-              </p>
-
-              <div className="card mb-3" style={{ padding: '1.25rem 1.35rem' }}>
-                <p
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={handleHug}
+              id="day5-tight-hug-button"
+              className="btn"
+              style={{
+                background: 'radial-gradient(circle, #e8637a 0%, #a82342 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '2rem',
+                padding: '0.75rem 1.85rem',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                boxShadow: '0 8px 25px rgba(232, 99, 122, 0.45)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                cursor: 'pointer',
+              }}
+            >
+              <motion.span
+                animate={{ scale: [1, 1.25, 1] }}
+                transition={{ repeat: Infinity, duration: 0.9 }}
+                style={{ display: 'inline-block' }}
+              >
+                ❤️
+              </motion.span>
+              <span>Tap to Hug Me Tightly</span>
+              {hugCount > 0 && (
+                <span
                   style={{
-                    fontFamily: 'var(--font-serif)',
-                    fontSize: 'clamp(1.05rem, 3.5vw, 1.3rem)',
-                    color: 'var(--white)',
-                    lineHeight: 1.45,
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '0.15rem 0.55rem',
+                    borderRadius: '1rem',
+                    fontSize: '0.82rem',
                   }}
                 >
-                  {q.question}
-                </p>
-              </div>
+                  {hugCount}
+                </span>
+              )}
+            </motion.button>
+          </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                {q.options.map((opt, i) => {
-                  const isCorrect = i === q.correct;
-                  const isSelected = selected === i;
-                  const showResult = selected !== null;
-
-                  let className = 'quiz-option';
-                  if (showResult && isCorrect) className += ' correct';
-                  else if (showResult && isSelected && !isCorrect) className += ' wrong';
-
-                  return (
-                    <motion.button
-                      key={i}
-                      className={className}
-                      onClick={() => handleSelect(i)}
-                      whileTap={{ scale: 0.98 }}
-                      id={`quiz-option-${current}-${i}`}
-                      aria-label={`Option: ${opt}`}
-                    >
-                      <span className="mono" style={{ marginRight: '0.75rem', fontSize: '0.75rem', opacity: 0.5, flexShrink: 0 }}>
-                        {String.fromCharCode(65 + i)}.
-                      </span>
-                      <span style={{ flex: 1 }}>{opt}</span>
-                      {showResult && isCorrect && <span style={{ marginLeft: '0.5rem', flexShrink: 0 }}>✓</span>}
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              <AnimatePresence>
-                {selected !== null && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="card mt-3"
-                    style={{ borderColor: 'rgba(232, 99, 122, 0.25)', padding: '1.15rem 1.25rem' }}
-                  >
-                    <p className="body-text" style={{ fontStyle: 'italic', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                      {q.funnyExplain}
-                    </p>
-                    <button
-                      className="btn-primary btn mt-3"
-                      onClick={next}
-                      id={`quiz-next-${current}`}
-                      style={{ width: '100%', minHeight: '48px' }}
-                    >
-                      {current < QUIZ_QUESTIONS.length - 1 ? 'Next Question →' : 'See Results →'}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="results"
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="card text-center"
-              style={{ padding: '2.5rem 1.5rem' }}
-            >
-              <div className="animate-heartbeat" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-                {score === 5 ? '🥹' : score >= 3 ? '😊' : '😅'}
-              </div>
-              <p
-                className="heading mb-2"
-                style={{ fontSize: 'clamp(1.4rem, 4.5vw, 1.85rem)' }}
+          {/* Bursting Hearts Effect on Hug */}
+          <AnimatePresence>
+            {hugBurst && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5, y: 0 }}
+                animate={{ opacity: 1, scale: 1.5, y: -50 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  position: 'absolute',
+                  top: '40%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '3rem',
+                  pointerEvents: 'none',
+                  zIndex: 20,
+                  textShadow: '0 0 20px rgba(255, 77, 109, 0.9)',
+                }}
               >
-                Score: {score}/{QUIZ_QUESTIONS.length}
-              </p>
+                ❤️
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-              {score === 5 && (
-                <p className="body-text mb-4">
-                  Okay fine...<br />
-                  <span className="rose">You know me too well. ❤️</span>
-                </p>
-              )}
-              {score >= 3 && score < 5 && (
-                <p className="body-text mb-4">
-                  Pretty good!<br />
-                  <span className="rose">You're paying attention. I like that.</span>
-                </p>
-              )}
-              {score < 3 && (
-                <p className="body-text mb-4">
-                  Hmm...<br />
-                  <span className="rose">We need to talk more. 😭❤️</span>
-                </p>
-              )}
+        {/* 4. HER DIRECT REPLY / LOVE NOTE TO TOSIF */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="card mb-4"
+          style={{
+            background: 'rgba(18, 14, 24, 0.85)',
+            border: '1px solid rgba(232, 99, 122, 0.25)',
+            borderRadius: '1.25rem',
+            padding: '1.25rem',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span style={{ fontSize: '1.2rem' }}>✍️</span>
+            <h3 style={{ fontSize: '1rem', color: '#fff', fontWeight: 600 }}>
+              Tell Tosif whatever is in your heart:
+            </h3>
+          </div>
 
-              <button
-                className="btn"
-                onClick={retry}
-                id="quiz-retry-btn"
-                style={{ minHeight: '48px', padding: '0.85rem 2rem' }}
-              >
-                Try Again
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <textarea
+            value={userNote}
+            onChange={(e) => setUserNote(e.target.value)}
+            placeholder="Write to me bachaa... I will treasure every single word forever. 🤍"
+            rows={4}
+            id="day5-nousheen-reply-input"
+            style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '0.75rem',
+              padding: '0.85rem',
+              color: '#fff',
+              fontFamily: 'var(--font-serif)',
+              fontSize: '0.95rem',
+              lineHeight: 1.6,
+              resize: 'vertical',
+              outline: 'none',
+              marginBottom: '0.75rem',
+            }}
+          />
+
+          <button
+            onClick={handleSaveNote}
+            disabled={!userNote.trim()}
+            id="day5-save-reply-btn"
+            className="btn-primary btn"
+            style={{
+              width: '100%',
+              minHeight: '46px',
+              opacity: !userNote.trim() ? 0.5 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            <span>{isNoteSaved ? 'Saved in Tosif’s Heart ✓' : 'Send to Tosif’s Heart'}</span>
+            <span>💌</span>
+          </button>
+        </motion.div>
+
+        {/* 5. CLOSING DUA BADGE */}
+        <div
+          className="text-center py-4"
+          style={{
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-arabic, serif)',
+              fontSize: '1.25rem',
+              color: 'var(--gold, #c9a96e)',
+              marginBottom: '0.5rem',
+              direction: 'rtl',
+            }}
+          >
+            اللهم احفظها وبارك لي فيها واجمع بيننا في خير
+          </p>
+          <p style={{ color: 'rgba(255, 255, 255, 0.65)', fontSize: '0.85rem', fontStyle: 'italic' }}>
+            "Goodnight, my universe. Sleep peacefully knowing you are loved beyond words." 🤍
+          </p>
+        </div>
+
       </div>
     </div>
   );

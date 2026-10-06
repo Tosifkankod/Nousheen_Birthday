@@ -37,10 +37,10 @@ export const DAYS = [
   {
     day: 5,
     date: '2026-10-05',
-    title: 'How Well Do You Know Me?',
-    emoji: '🧩',
-    type: 'quiz',
-    unlocked: false,
+    title: 'Things My Heart Never Said',
+    emoji: '💌',
+    type: 'emotional-vows',
+    unlocked: true,
   },
   {
     day: 6,
