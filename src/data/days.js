@@ -53,10 +53,10 @@ export const DAYS = [
   {
     day: 7,
     date: '2026-10-07',
-    title: 'Our Album',
-    emoji: '🖼️',
-    type: 'album',
-    unlocked: false,
+    title: 'One Letter',
+    emoji: '💌',
+    type: 'love-letter',
+    unlocked: true,
   },
   {
     day: 8,
