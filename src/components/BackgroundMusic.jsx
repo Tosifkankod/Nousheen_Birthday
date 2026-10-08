@@ -9,22 +9,22 @@ export default function BackgroundMusic() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [showToast, setShowToast] = useState(false);
 
-  // Day 3 is a dedicated cinematic film & video experience (requires no home bg music)
-  const isDay3 = location.pathname === '/day/3';
+  // Day 3 (Cinematic story) & Day 8 (Music world experience) have their own audio
+  const isExcludedDay = location.pathname === '/day/3' || location.pathname === '/day/8';
 
-  // Handle route changes: pause immediately on Day 3
+  // Handle route changes: pause immediately on excluded days
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isDay3) {
+    if (isExcludedDay) {
       if (!audio.paused) {
         audio.pause();
       }
     } else if (isPlaying && audio.paused) {
       audio.play().catch(() => {});
     }
-  }, [isDay3, isPlaying]);
+  }, [isExcludedDay, isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -33,8 +33,8 @@ export default function BackgroundMusic() {
     audio.volume = 0.55;
     audio.loop = true;
 
-    // Do not autoplay on Day 3
-    if (isDay3) {
+    // Do not autoplay on excluded days (Day 3 & Day 8)
+    if (isExcludedDay) {
       return;
     }
 
@@ -57,7 +57,7 @@ export default function BackgroundMusic() {
 
     // 2. Fallback for mobile: unlock audio on her very first touch/scroll
     const unlockOnFirstTouch = () => {
-      if (audio && audio.paused && !isDay3) {
+      if (audio && audio.paused && !isExcludedDay) {
         audio.play().then(() => {
           setIsPlaying(true);
         }).catch(() => {});
@@ -71,7 +71,7 @@ export default function BackgroundMusic() {
     return () => {
       events.forEach(evt => window.removeEventListener(evt, unlockOnFirstTouch));
     };
-  }, [isDay3]);
+  }, [isExcludedDay]);
 
   const toggleMusic = (e) => {
     e.stopPropagation();
@@ -101,8 +101,8 @@ export default function BackgroundMusic() {
         preload="auto"
       />
 
-      {/* Floating Music Toggle Pill (hidden on Day 3 for cinematic story & direct video audio) */}
-      {!isDay3 && (
+      {/* Floating Music Toggle Pill (hidden on Day 3 & Day 8) */}
+      {!isExcludedDay && (
         <div
           style={{
             position: 'fixed',

@@ -61,10 +61,10 @@ export const DAYS = [
   {
     day: 8,
     date: '2026-10-08',
-    title: 'Behind The Website',
-    emoji: '🧑‍💻',
-    type: 'terminal',
-    unlocked: false,
+    title: 'Songs That Sound Like You',
+    emoji: '🎵',
+    type: 'music-experience',
+    unlocked: true,
   },
   {
     day: 9,
