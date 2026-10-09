@@ -69,10 +69,10 @@ export const DAYS = [
   {
     day: 9,
     date: '2026-10-09',
-    title: 'If We Were...',
-    emoji: '💭',
-    type: 'if-we-were',
-    unlocked: false,
+    title: 'Nousheen, My Favourite Memory',
+    emoji: '📖',
+    type: 'scrapbook',
+    unlocked: true,
   },
   {
     day: 10,
