@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import DayNav from '../../components/DayNav';
@@ -18,6 +18,8 @@ import {
 } from '../../data/day10Data';
 
 export default function Day10() {
+  const navRef = useRef(null);
+
   // Session ID for response tracking to Excel/Google Sheets
   const [sessionId, setSessionId] = useState('');
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function Day10() {
       return 1;
     }
   });
+
+  // Smooth scroll active nav pill into view on mobile
+  useEffect(() => {
+    const activeBtn = navRef.current?.querySelector('.day10-nav-btn.active');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [scene]);
 
   // Scene 6: Nousheen's input state (synced to Excel)
   const [userNote, setUserNote] = useState(() => {
@@ -247,7 +257,7 @@ export default function Day10() {
       <div className="day10-stars-bg" />
 
       {/* Scene Navigation Pill Bar */}
-      <div className="day10-nav-pills">
+      <div className="day10-nav-pills" ref={navRef}>
         <button
           onClick={() => changeScene(1)}
           className={`day10-nav-btn ${scene === 1 ? 'active' : ''}`}
@@ -518,25 +528,26 @@ export default function Day10() {
                 onSelectStar={handleSelectStar}
                 isScene4={false}
               />
+            </div>
 
-              {/* Star Quick-Select HUD Chips for mobile friendliness */}
-              <div className="day10-stars-hud">
-                {DAY10_STARS.map((s) => {
-                  const isOpened = discoveredStars.includes(s.id);
-                  return (
-                    <button
-                      key={s.id}
-                      id={`star-btn-${s.id}`}
-                      onClick={() => handleSelectStar(s.id)}
-                      className={`day10-star-hud-btn ${isOpened ? 'discovered' : ''}`}
-                    >
-                      <span>{s.icon}</span>
-                      <span>{s.badge}</span>
-                      {isOpened && <span style={{ color: '#e8c37d' }}>✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Star Quick-Select HUD Chips below canvas - zero canvas overlap */}
+            <div className="day10-stars-hud">
+              {DAY10_STARS.map((s) => {
+                const isOpened = discoveredStars.includes(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    id={`star-btn-${s.id}`}
+                    onClick={() => handleSelectStar(s.id)}
+                    className={`day10-star-hud-btn ${isOpened ? 'discovered' : ''}`}
+                    title={s.title}
+                  >
+                    <span>{s.icon}</span>
+                    <span>{s.badge}</span>
+                    {isOpened && <span style={{ color: '#e8c37d' }}>✓</span>}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Unlock Scene 4 Banner if all 6 stars discovered */}
@@ -559,39 +570,58 @@ export default function Day10() {
               </motion.div>
             )}
 
-            {/* Star Message Drawer / Modal */}
+            {/* Star Message Drawer / Modal with Backdrop */}
             <AnimatePresence>
               {activeStarModal && (
-                <motion.div
-                  initial={{ opacity: 0, y: 25 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 25 }}
-                  className="day10-star-drawer"
-                >
-                  <div className="day10-star-drawer-header">
-                    <h4 className="day10-star-drawer-title">
-                      <span>{activeStarModal.icon}</span>
-                      <span>{activeStarModal.title}</span>
-                    </h4>
-                    <span style={{ fontSize: '0.74rem', color: 'rgba(232, 195, 125, 0.7)', fontFamily: 'var(--font-mono, monospace)' }}>
-                      {activeStarModal.badge}
-                    </span>
-                  </div>
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setActiveStarModal(null)}
+                    className="day10-star-drawer-backdrop"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 24 }}
+                    transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                    className="day10-star-drawer"
+                  >
+                    <div className="day10-star-drawer-header">
+                      <h4 className="day10-star-drawer-title">
+                        <span>{activeStarModal.icon}</span>
+                        <span>{activeStarModal.title}</span>
+                      </h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.74rem', color: 'rgba(232, 195, 125, 0.7)', fontFamily: 'var(--font-mono, monospace)' }}>
+                          {activeStarModal.badge}
+                        </span>
+                        <button
+                          onClick={() => setActiveStarModal(null)}
+                          className="day10-star-close-icon"
+                          aria-label="Close star drawer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
 
-                  <p className="day10-star-drawer-msg">
-                    "{activeStarModal.message}"
-                  </p>
+                    <p className="day10-star-drawer-msg">
+                      "{activeStarModal.message}"
+                    </p>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button
-                      onClick={() => setActiveStarModal(null)}
-                      className="day10-glow-btn"
-                      style={{ padding: '8px 20px', fontSize: '0.78rem' }}
-                    >
-                      Close Star ❤️
-                    </button>
-                  </div>
-                </motion.div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setActiveStarModal(null)}
+                        className="day10-glow-btn"
+                        style={{ padding: '8px 20px', fontSize: '0.78rem' }}
+                      >
+                        Close Star ❤️
+                      </button>
+                    </div>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>

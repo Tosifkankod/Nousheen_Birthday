@@ -14,52 +14,71 @@ function createStarTexture(colorHex) {
   const cx = 64;
   const cy = 64;
 
-  // 1. Soft exponential radial glow
-  const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+  // 1. Sharp diamond pinpoint core + rapid radiant falloff
+  const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 32);
   radGrad.addColorStop(0.0, '#ffffff');
-  radGrad.addColorStop(0.12, 'rgba(255, 248, 225, 0.95)');
-  radGrad.addColorStop(0.35, colorHex);
-  radGrad.addColorStop(0.7, 'rgba(232, 195, 125, 0.2)');
+  radGrad.addColorStop(0.12, 'rgba(255, 255, 255, 0.98)');
+  radGrad.addColorStop(0.28, colorHex);
+  radGrad.addColorStop(0.65, 'rgba(232, 195, 125, 0.18)');
   radGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = radGrad;
   ctx.beginPath();
-  ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 32, 0, Math.PI * 2);
   ctx.fill();
 
-  // 2. 4-point subtle diffraction spikes (horizontal & vertical)
+  // 2. 4-point slender diffraction spikes (horizontal & vertical)
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  // Horizontal ray
-  const hGrad = ctx.createLinearGradient(0, cy, 128, cy);
+  // Horizontal slender spike
+  const hGrad = ctx.createLinearGradient(12, cy, 116, cy);
   hGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  hGrad.addColorStop(0.4, 'rgba(255,248,225,0.4)');
+  hGrad.addColorStop(0.35, 'rgba(255,248,225,0.4)');
   hGrad.addColorStop(0.5, '#ffffff');
-  hGrad.addColorStop(0.6, 'rgba(255,248,225,0.4)');
+  hGrad.addColorStop(0.65, 'rgba(255,248,225,0.4)');
   hGrad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = hGrad;
   ctx.beginPath();
-  ctx.moveTo(4, cy);
-  ctx.lineTo(cx, cy - 2.5);
-  ctx.lineTo(124, cy);
-  ctx.lineTo(cx, cy + 2.5);
+  ctx.moveTo(12, cy);
+  ctx.lineTo(cx, cy - 2.0);
+  ctx.lineTo(116, cy);
+  ctx.lineTo(cx, cy + 2.0);
   ctx.closePath();
   ctx.fill();
 
-  // Vertical ray
-  const vGrad = ctx.createLinearGradient(cx, 0, cx, 128);
+  // Vertical slender spike
+  const vGrad = ctx.createLinearGradient(cx, 12, cx, 116);
   vGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vGrad.addColorStop(0.4, 'rgba(255,248,225,0.4)');
+  vGrad.addColorStop(0.35, 'rgba(255,248,225,0.4)');
   vGrad.addColorStop(0.5, '#ffffff');
-  vGrad.addColorStop(0.6, 'rgba(255,248,225,0.4)');
+  vGrad.addColorStop(0.65, 'rgba(255,248,225,0.4)');
   vGrad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = vGrad;
   ctx.beginPath();
-  ctx.moveTo(cx, 4);
-  ctx.lineTo(cx - 2.5, cy);
-  ctx.lineTo(cx, 124);
-  ctx.lineTo(cx + 2.5, cy);
+  ctx.moveTo(cx, 12);
+  ctx.lineTo(cx - 2.0, cy);
+  ctx.lineTo(cx, 116);
+  ctx.lineTo(cx + 2.0, cy);
   ctx.closePath();
+  ctx.fill();
+
+  // 45-degree micro-diagonal sparkles
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(Math.PI / 4);
+  const diagGrad = ctx.createLinearGradient(-16, 0, 16, 0);
+  diagGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  diagGrad.addColorStop(0.5, 'rgba(255,255,255,0.65)');
+  diagGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = diagGrad;
+  ctx.fillRect(-16, -1, 32, 2);
+  ctx.fillRect(-1, -16, 2, 32);
+  ctx.restore();
+
+  // Pinpoint pure white center
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 2.8, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -81,10 +100,10 @@ function createHaloTexture(colorHex) {
   const cx = 64;
   const cy = 64;
 
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 64);
-  grad.addColorStop(0.0, 'rgba(255, 248, 220, 0.8)');
-  grad.addColorStop(0.25, colorHex);
-  grad.addColorStop(0.6, 'rgba(201, 169, 110, 0.15)');
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 48);
+  grad.addColorStop(0.0, 'rgba(255, 255, 255, 0.65)');
+  grad.addColorStop(0.2, colorHex);
+  grad.addColorStop(0.5, 'rgba(201, 169, 110, 0.12)');
   grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 128, 128);
@@ -168,9 +187,9 @@ export default function UniverseCanvas({
 
     const aspect = width / Math.max(height, 1);
     const computeBaseZ = (asp) => {
-      if (asp < 0.6) return 11.2;
-      if (asp < 0.8) return 9.8;
-      if (asp < 1.0) return 8.8;
+      if (asp < 0.6) return 10.5;
+      if (asp < 0.8) return 9.5;
+      if (asp < 1.0) return 8.6;
       if (asp < 1.25) return 7.8;
       return 7.2;
     };
@@ -209,24 +228,6 @@ export default function UniverseCanvas({
       nebSprite.scale.set(10, 8, 1);
       scene.add(nebSprite);
     });
-
-    // 4. Distant Moon (Subtle celestial presence)
-    const moonGeo = new THREE.SphereGeometry(0.65, 32, 32);
-    const moonMat = new THREE.MeshBasicMaterial({ color: 0xfdfbf7 });
-    const moon = new THREE.Mesh(moonGeo, moonMat);
-    moon.position.set(5.5, 3.2, -7.5);
-    scene.add(moon);
-
-    const moonGlowMat = new THREE.SpriteMaterial({
-      map: createHaloTexture('#fbe2a8'),
-      blending: THREE.AdditiveBlending,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const moonGlow = new THREE.Sprite(moonGlowMat);
-    moonGlow.position.copy(moon.position);
-    moonGlow.scale.set(3.2, 3.2, 1);
-    scene.add(moonGlow);
 
     // 5. Multi-Layer Background Starfield (Deep 3D space)
     // Layer A: Deep Far Stars (800 count)
@@ -307,7 +308,7 @@ export default function UniverseCanvas({
         opacity: 0.95,
       });
       const coreSprite = new THREE.Sprite(coreMat);
-      const baseScale = 0.85 + (idx % 3) * 0.12;
+      const baseScale = 0.44 + (idx % 3) * 0.05;
       coreSprite.scale.set(baseScale, baseScale, 1);
       starGroup.add(coreSprite);
 
@@ -316,10 +317,10 @@ export default function UniverseCanvas({
         map: haloTex,
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.38,
       });
       const haloSprite = new THREE.Sprite(haloMat);
-      haloSprite.scale.set(baseScale * 1.8, baseScale * 1.8, 1);
+      haloSprite.scale.set(baseScale * 1.35, baseScale * 1.35, 1);
       starGroup.add(haloSprite);
 
       // C) Tiny Orbiting Micro-Stardust
@@ -598,10 +599,10 @@ export default function UniverseCanvas({
 
           const finalScale = so.baseScale * pulseScale * hoverBoost * burstScale;
           so.core.scale.set(finalScale, finalScale, 1);
-          so.halo.scale.set(finalScale * 1.9, finalScale * 1.9, 1);
+          so.halo.scale.set(finalScale * 1.35, finalScale * 1.35, 1);
 
           // Luminous halo opacity
-          so.halo.material.opacity = (0.5 + twinkle * 0.15 + (so.isHovered ? 0.25 : 0) + so.burst * 0.4);
+          so.halo.material.opacity = (0.32 + twinkle * 0.1 + (so.isHovered ? 0.2 : 0) + so.burst * 0.35);
 
           // Orbiting micro-stardust rotate slowly
           so.micro.rotation.y = elapsed * 0.8 + idx;

@@ -45,19 +45,22 @@
   top: 72px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 50;
+  z-index: 60;
   display: flex;
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  background: rgba(10, 8, 16, 0.88);
+  background: rgba(10, 8, 16, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(232, 195, 125, 0.28);
   border-radius: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
-  max-width: 95vw;
+  max-width: min(95vw, 620px);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  white-space: nowrap;
 }
 
 .day10-nav-btn {
@@ -126,6 +129,8 @@
   user-select: none;
   pointer-events: none;
   white-space: nowrap;
+  max-width: 92vw;
+  text-overflow: ellipsis;
   will-change: transform, opacity;
   text-shadow: 0 0 25px rgba(251, 226, 168, 0.4);
 }
@@ -231,9 +236,9 @@
 .day10-universe-canvas-container {
   position: relative;
   width: 100%;
-  height: 540px;
-  max-height: 70vh;
-  min-height: 440px;
+  height: 520px;
+  max-height: 68vh;
+  min-height: 420px;
   background: radial-gradient(circle at 50% 50%, #100d1e 0%, #040308 100%);
   border: 1px solid rgba(232, 195, 125, 0.25);
   border-radius: 32px;
@@ -242,26 +247,24 @@
   box-sizing: border-box;
 }
 
-/* Star Discovery HUD Chips (Subtle, elegant translucent dark panel) */
+/* Star Discovery HUD Chips (Clean row outside canvas, no overlap) */
 .day10-stars-hud {
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
-  background: rgba(8, 6, 14, 0.75);
+  margin-top: 14px;
+  padding: 6px 12px;
+  background: rgba(12, 10, 20, 0.85);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(232, 195, 125, 0.22);
-  border-radius: 28px;
-  max-width: 92%;
+  border-radius: 24px;
+  max-width: 96%;
+  box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 20;
 }
 
 .day10-star-hud-btn {
@@ -295,22 +298,33 @@
   box-shadow: 0 0 10px rgba(232, 195, 125, 0.15);
 }
 
-/* Star Message Drawer / Modal */
+/* Star Message Backdrop & Drawer / Modal */
+.day10-star-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 3, 8, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 998;
+}
+
 .day10-star-drawer {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 70;
-  width: 90%;
-  max-width: 500px;
+  bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+  left: 16px;
+  right: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  max-width: 440px;
+  z-index: 999;
   background: rgba(14, 11, 24, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(232, 195, 125, 0.45);
   border-radius: 26px;
-  padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(232, 195, 125, 0.2);
+  padding: 22px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(232, 195, 125, 0.2);
   box-sizing: border-box;
   text-align: left;
 }
@@ -336,12 +350,33 @@
   margin: 0;
 }
 
+.day10-star-close-icon {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.day10-star-close-icon:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
 .day10-star-drawer-msg {
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   line-height: 1.65;
-  color: rgba(247, 244, 237, 0.92);
+  color: rgba(247, 244, 237, 0.94);
   font-weight: 300;
-  margin: 12px 0 20px 0;
+  margin: 10px 0 18px 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -605,8 +640,8 @@
 
 @media (max-width: 640px) {
   .day10-nav-pills {
-    top: max(58px, calc(env(safe-area-inset-top, 0px) + 52px));
-    max-width: calc(100vw - 16px);
+    top: max(56px, calc(env(safe-area-inset-top, 0px) + 50px));
+    max-width: calc(100vw - 20px);
     padding: 3px 6px;
     gap: 2px;
     scrollbar-width: none;
@@ -623,20 +658,20 @@
     min-height: calc(100dvh - 56px);
   }
   .day10-universe-canvas-container {
-    height: clamp(320px, 50vh, 420px);
-    min-height: 310px;
-    border-radius: 22px;
+    height: clamp(290px, 46vh, 380px);
+    min-height: 280px;
+    border-radius: 20px;
   }
   .day10-stars-hud {
-    bottom: 8px;
-    gap: 3px;
-    padding: 4px 6px;
-    max-width: 96%;
+    margin-top: 10px;
+    gap: 4px;
+    padding: 4px 8px;
+    max-width: 100%;
     border-radius: 20px;
   }
   .day10-star-hud-btn {
     font-size: 0.65rem;
-    padding: 2.5px 6px;
+    padding: 3px 7px;
     gap: 3px;
   }
   .day10-scene1-center-box {
@@ -660,10 +695,13 @@
     font-size: 2.4rem;
   }
   .day10-star-drawer {
-    bottom: 12px;
-    padding: 16px 14px;
+    left: 12px;
+    right: 12px;
+    bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+    padding: 18px 14px;
     border-radius: 20px;
-    max-width: 95%;
+    width: auto;
+    max-width: 440px;
   }
   .day10-star-drawer-msg {
     font-size: 0.92rem;
@@ -709,12 +747,12 @@
     padding: 2.5px 5px;
   }
   .day10-star-hud-btn {
-    font-size: 0.6rem;
-    padding: 2px 4px;
+    font-size: 0.58rem;
+    padding: 2.5px 4px;
   }
   .day10-universe-canvas-container {
-    height: 310px;
-    min-height: 290px;
+    height: 280px;
+    min-height: 270px;
   }
   .day10-glow-btn {
     padding: 10px 18px;
