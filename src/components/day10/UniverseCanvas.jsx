@@ -166,8 +166,18 @@ export default function UniverseCanvas({
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x040308, 0.04);
 
-    const camera = new THREE.PerspectiveCamera(45, width / Math.max(height, 1), 0.1, 100);
-    camera.position.set(0, 0, 7.2);
+    const aspect = width / Math.max(height, 1);
+    const computeBaseZ = (asp) => {
+      if (asp < 0.6) return 11.2;
+      if (asp < 0.8) return 9.8;
+      if (asp < 1.0) return 8.8;
+      if (asp < 1.25) return 7.8;
+      return 7.2;
+    };
+
+    let baseCameraZ = computeBaseZ(aspect);
+    const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 100);
+    camera.position.set(0, 0, baseCameraZ);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -554,10 +564,10 @@ export default function UniverseCanvas({
         lightTosif.scale.set(1.4 * pulse, 1.4 * pulse, 1);
         lightNousheen.scale.set(1.4 * pulse, 1.4 * pulse, 1);
 
-        targetCameraZ = 6.2;
+        targetCameraZ = baseCameraZ * 0.86;
       } else {
         twoLightsGroup.visible = false;
-        targetCameraZ = 7.2;
+        targetCameraZ = baseCameraZ;
 
         const currentDiscovered = discoveredRef.current || [];
 
@@ -615,9 +625,13 @@ export default function UniverseCanvas({
       if (!container) return;
       const newW = container.clientWidth || 640;
       const newH = container.clientHeight || 520;
-      camera.aspect = newW / Math.max(newH, 1);
+      const newAspect = newW / Math.max(newH, 1);
+      camera.aspect = newAspect;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      baseCameraZ = computeBaseZ(newAspect);
     };
 
     window.addEventListener('resize', handleResize);
@@ -642,9 +656,9 @@ export default function UniverseCanvas({
       style={{
         width: '100%',
         height: '100%',
-        minHeight: '440px',
+        minHeight: '320px',
         position: 'relative',
-        touchAction: 'none',
+        touchAction: isScene4 ? 'none' : 'pan-y',
         cursor: isScene4 ? 'grab' : 'pointer',
       }}
     />

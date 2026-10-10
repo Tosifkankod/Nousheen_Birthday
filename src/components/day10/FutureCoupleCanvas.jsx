@@ -22,8 +22,15 @@ export default function FutureCoupleCanvas() {
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x06050e, 0.05);
 
-    const camera = new THREE.PerspectiveCamera(40, width / Math.max(height, 1), 0.1, 50);
-    camera.position.set(0, 1.45, 4.2);
+    const aspect = width / Math.max(height, 1);
+    const computeCoupleZ = (asp) => {
+      if (asp < 0.7) return 5.8;
+      if (asp < 1.0) return 5.0;
+      return 4.2;
+    };
+
+    const camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 50);
+    camera.position.set(0, 1.45, computeCoupleZ(aspect));
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -241,9 +248,12 @@ export default function FutureCoupleCanvas() {
       if (!container) return;
       const newW = container.clientWidth || 640;
       const newH = container.clientHeight || 520;
-      camera.aspect = newW / Math.max(newH, 1);
+      const newAspect = newW / Math.max(newH, 1);
+      camera.aspect = newAspect;
       camera.updateProjectionMatrix();
+      camera.position.z = computeCoupleZ(newAspect);
       renderer.setSize(newW, newH);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     };
 
     window.addEventListener('resize', handleResize);
@@ -264,9 +274,9 @@ export default function FutureCoupleCanvas() {
       style={{
         width: '100%',
         height: '100%',
-        minHeight: '440px',
+        minHeight: '320px',
         position: 'relative',
-        touchAction: 'none',
+        touchAction: 'pan-y',
       }}
     />
   );

@@ -596,29 +596,128 @@
   margin: 14px 0;
 }
 
-/* Mobile Responsiveness */
+/* --------------------------------------------------------------------------
+   RESPONSIVENESS & MOBILE-FIRST OPTIMIZATION
+   -------------------------------------------------------------------------- */
+.day10-nav-pills::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 640px) {
   .day10-nav-pills {
-    top: 64px;
-    padding: 4px 8px;
-    gap: 3px;
+    top: max(58px, calc(env(safe-area-inset-top, 0px) + 52px));
+    max-width: calc(100vw - 16px);
+    padding: 3px 6px;
+    gap: 2px;
+    scrollbar-width: none;
   }
   .day10-nav-btn {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     padding: 3px 7px;
   }
+  .day10-nav-sep {
+    font-size: 0.6rem;
+  }
   .day10-section {
-    padding: 95px 16px 40px 16px;
+    padding: max(96px, calc(env(safe-area-inset-top, 0px) + 88px)) 12px max(35px, calc(env(safe-area-inset-bottom, 0px) + 25px)) 12px;
+    min-height: calc(100dvh - 56px);
   }
   .day10-universe-canvas-container {
-    height: 440px;
+    height: clamp(320px, 50vh, 420px);
+    min-height: 310px;
+    border-radius: 22px;
   }
   .day10-stars-hud {
-    gap: 5px;
-    padding: 6px 8px;
+    bottom: 8px;
+    gap: 3px;
+    padding: 4px 6px;
+    max-width: 96%;
+    border-radius: 20px;
   }
   .day10-star-hud-btn {
-    font-size: 0.7rem;
-    padding: 3px 8px;
+    font-size: 0.65rem;
+    padding: 2.5px 6px;
+    gap: 3px;
+  }
+  .day10-scene1-center-box {
+    padding: 26px 16px;
+    border-radius: 22px;
+  }
+  .day10-scene1-quote {
+    font-size: 1.35rem;
+    margin-bottom: 20px;
+  }
+  .day10-letter-card {
+    padding: 20px 14px;
+    border-radius: 20px;
+  }
+  .day10-letter-p {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .day10-letter-arabic-sig {
+    font-size: 2.4rem;
+  }
+  .day10-star-drawer {
+    bottom: 12px;
+    padding: 16px 14px;
+    border-radius: 20px;
+    max-width: 95%;
+  }
+  .day10-star-drawer-msg {
+    font-size: 0.92rem;
+    margin: 8px 0 16px 0;
+  }
+  .day10-constellation-card {
+    padding: 22px 14px;
+    border-radius: 20px;
+    max-width: 94%;
+  }
+  .day10-future-card {
+    padding: 18px 14px;
+    border-radius: 20px;
+  }
+  .day10-final-box {
+    padding: 22px 12px;
+    border-radius: 22px;
+    max-width: 100%;
+  }
+  .day10-note-box {
+    padding: 14px 12px;
+    margin: 16px 0 20px 0;
+    border-radius: 16px;
+  }
+  .day10-note-title {
+    font-size: 1rem;
+  }
+  .day10-note-textarea {
+    font-size: 0.88rem;
+    padding: 10px 12px;
+    min-height: 85px;
+  }
+  .day10-glow-btn {
+    padding: 11px 22px;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (max-width: 380px) {
+  .day10-nav-btn {
+    font-size: 0.62rem;
+    padding: 2.5px 5px;
+  }
+  .day10-star-hud-btn {
+    font-size: 0.6rem;
+    padding: 2px 4px;
+  }
+  .day10-universe-canvas-container {
+    height: 310px;
+    min-height: 290px;
+  }
+  .day10-glow-btn {
+    padding: 10px 18px;
+    font-size: 0.74rem;
   }
 }

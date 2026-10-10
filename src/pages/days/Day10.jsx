@@ -241,13 +241,7 @@ export default function Day10() {
   return (
     <div className="day10-wrapper">
       {/* Top Header / Day Navigation */}
-      <DayNav
-        currentDay={10}
-        totalDays={14}
-        prevDay={9}
-        nextDay={null}
-        title="Day 10: A Universe That Spells Nousheen"
-      />
+      <DayNav dayNumber={10} />
 
       {/* Background Starry Dust */}
       <div className="day10-stars-bg" />
@@ -312,16 +306,16 @@ export default function Day10() {
                     initial={{
                       opacity: 0,
                       scale: 0.7,
-                      x: `${p.x * 3.5}vw`,
-                      y: `${p.y * 3.5}vh`,
-                      rotate: p.rot * 2,
+                      x: `${p.x * 1.1}vw`,
+                      y: `${p.y * 0.9}vh`,
+                      rotate: p.rot * 1.5,
                     }}
                     animate={{
                       opacity: [0, 0.95, 0.8],
-                      scale: [0.7, 1.1, 1],
-                      x: [`${p.x * 3.5}vw`, `${p.x * 2.8}vw`, `${p.x * 2.5}vw`],
-                      y: [`${p.y * 3.5}vh`, `${p.y * 2.8}vh`, `${p.y * 2.5}vh`],
-                      rotate: [p.rot * 2, p.rot, p.rot],
+                      scale: [0.7, 1.05, 1],
+                      x: [`${p.x * 1.1}vw`, `${p.x * 0.95}vw`, `${p.x * 0.9}vw`],
+                      y: [`${p.y * 0.9}vh`, `${p.y * 0.78}vh`, `${p.y * 0.75}vh`],
+                      rotate: [p.rot * 1.5, p.rot, p.rot],
                     }}
                     transition={{
                       duration: 2.4,
@@ -333,7 +327,7 @@ export default function Day10() {
                       left: '50%',
                       top: '50%',
                       transform: 'translate(-50%, -50%)',
-                      fontSize: p.isArabic ? 'clamp(3.5rem, 12vw, 6.5rem)' : `clamp(1.4rem, 4.5vw, ${p.size})`,
+                      fontSize: p.isArabic ? 'clamp(2.6rem, 9vw, 5.5rem)' : 'clamp(1.1rem, 3.6vw, 2.4rem)',
                       fontFamily: p.font,
                       color: p.color,
                     }}
