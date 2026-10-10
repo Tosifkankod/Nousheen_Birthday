@@ -77,10 +77,10 @@ export const DAYS = [
   {
     day: 10,
     date: '2026-10-10',
-    title: 'A Letter',
-    emoji: '✍️',
+    title: 'Nousheen, Please Understand My Heart',
+    emoji: '❤️',
     type: 'letter',
-    unlocked: false,
+    unlocked: true,
   },
   {
     day: 11,

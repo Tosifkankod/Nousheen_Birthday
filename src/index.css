@@ -936,3 +936,14 @@ body::before {
   box-shadow: 0 0 20px rgba(232, 99, 122, 0.25);
 }
 
+/* ============ DAY 10 KEYFRAMES ============ */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: rgba(251, 226, 168, 0.8); }
+}
+

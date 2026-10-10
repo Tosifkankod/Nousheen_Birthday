@@ -10,22 +10,6 @@ import ReelCard from '../../components/ReelCard';
 // ============================================================================
 const EXPERIENCES = [
   {
-    id: 'salah',
-    title: 'Praying Salah with you 🤲✨',
-    description: 'Standing together in prayer, asking Allah for each other in this Dunya and Akhirah.',
-    fullText: [
-      'Leading you in prayer...',
-      '...hearing you say "Ameen" behind me...',
-      '...and making dua for our forever together.',
-      'My most sacred dream. ❤️',
-    ],
-    videoSrc: '/videos/salah.mp4',
-    instagramUrl: '',
-    icon: '🤲',
-    tag: 'Sacred',
-    accentColor: '#e8c37d',
-  },
-  {
     id: 'paris',
     title: 'French kiss under the Eiffel Tower 🇫🇷',
     description: 'One day. Paris. Just you and me. Under the Eiffel Tower.',
@@ -133,7 +117,6 @@ const NICKNAMES = [
 ];
 
 const TIMELINE_ITEMS = [
-  { label: 'Praying Salah', icon: '🤲', detail: 'Standing together before Allah' },
   { label: 'Paris', icon: '🗼', detail: 'Under golden lights' },
   { label: 'Chai', icon: '☕', detail: 'Warm quiet evenings' },
   { label: 'Games', icon: '🎲', detail: 'Stupid laughs & bets' },
@@ -142,7 +125,7 @@ const TIMELINE_ITEMS = [
   { label: 'Random trips', icon: '🚗', detail: 'No destination' },
   { label: 'Late night talks', icon: '🌙', detail: 'Until the sky turns blue' },
   { label: 'Growing together', icon: '🌱', detail: 'Every version of us' },
-  { label: 'A lifetime in Dunya & Jannah...', icon: '💍', detail: 'Everything & forever' },
+  { label: 'A lifetime...', icon: '💍', detail: 'Everything & forever' },
 ];
 
 export default function Day3() {

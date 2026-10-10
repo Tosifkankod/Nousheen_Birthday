@@ -1,8 +1,8 @@
 import { DAYS } from '../data/days';
 
 // Set which day is currently active/unlocked.
-// Set to 9 so Day 1 through Day 9 are unlocked.
-export const ACTIVE_DAY_OVERRIDE = 9;
+// Set to 10 so Day 1 through Day 10 are unlocked.
+export const ACTIVE_DAY_OVERRIDE = 10;
 
 export function getCurrentDay() {
   if (ACTIVE_DAY_OVERRIDE !== null && ACTIVE_DAY_OVERRIDE !== undefined) {
