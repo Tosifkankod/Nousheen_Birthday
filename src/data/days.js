@@ -85,10 +85,10 @@ export const DAYS = [
   {
     day: 11,
     date: '2026-10-11',
-    title: 'Things I Want To Do With You',
-    emoji: '🫶',
-    type: 'bucket-list',
-    unlocked: false,
+    title: 'Our Little Book',
+    emoji: '📖',
+    type: 'letter-book',
+    unlocked: true,
   },
   {
     day: 12,
