@@ -1,0 +1,502 @@
+/* ==========================================================================
+   DAY 12 — AUTOPLAY VIDEO, TOSIF'S HEARTFELT MESSAGE,
+   SYNCED LYRICS MUSIC EXPERIENCE & HER INPUT BOX 🤍
+   ========================================================================== */
+
+.day12-wrapper {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  background: #07060d;
+  color: #f7f4ed;
+  font-family: var(--font-body, 'Inter', -apple-system, sans-serif);
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Ambient Glow */
+.day12-bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(135, 78, 48, 0.16) 0%, transparent 60%),
+    radial-gradient(circle at 15% 75%, rgba(68, 45, 88, 0.18) 0%, transparent 65%),
+    radial-gradient(circle at 85% 85%, rgba(38, 55, 92, 0.15) 0%, transparent 60%);
+}
+
+.day12-section {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.5rem)) 18px max(4rem, calc(env(safe-area-inset-bottom, 0px) + 3rem)) 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  gap: 28px;
+}
+
+/* Badge Pill */
+.day12-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(251, 226, 168, 0.08);
+  border: 1px solid rgba(232, 195, 125, 0.28);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #fbe2a8;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   SCENE 1: CINEMATIC AUTOPLAY VIDEO
+   ========================================================================== */
+
+.day12-video-card {
+  width: 100%;
+  max-width: 580px;
+  background: #0d0c14;
+  border-radius: 24px;
+  border: 1px solid rgba(232, 195, 125, 0.32);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(232, 195, 125, 0.12);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.day12-video-frame {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 520px;
+  background: #000000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day12-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Video Control Overlay */
+.day12-video-overlay-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+  padding: 20px 16px 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.day12-video-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.day12-video-btn:hover {
+  background: rgba(232, 195, 125, 0.35);
+  border-color: #fbe2a8;
+  color: #fbe2a8;
+}
+
+/* Autoplay Audio Tap Hint */
+.day12-audio-tap-hint {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 12, 22, 0.85);
+  border: 1px solid rgba(232, 195, 125, 0.4);
+  color: #fbe2a8;
+  font-size: 0.76rem;
+  padding: 5px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: pulseHint 2s infinite ease-in-out;
+  z-index: 5;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.04); }
+}
+
+/* ==========================================================================
+   SCENE 2: TOSIF'S HEARTFELT MESSAGE
+   ========================================================================== */
+
+.day12-message-card {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(20, 17, 28, 0.85) 0%, rgba(14, 12, 20, 0.95) 100%);
+  border: 1px solid rgba(232, 195, 125, 0.35);
+  border-radius: 24px;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: clamp(24px, 5vw, 36px);
+  box-sizing: border-box;
+  text-align: left;
+  position: relative;
+}
+
+.day12-message-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.4rem, 4.5vw, 1.85rem);
+  color: #fbe2a8;
+  margin: 0 0 18px 0;
+  line-height: 1.35;
+}
+
+.day12-message-p {
+  font-size: clamp(0.98rem, 2.9vw, 1.08rem);
+  line-height: 1.82;
+  color: rgba(247, 244, 237, 0.94);
+  margin: 0 0 16px 0;
+  font-weight: 300;
+}
+
+.day12-message-p:last-of-type {
+  margin-bottom: 24px;
+}
+
+.day12-dedication-box {
+  background: rgba(232, 195, 125, 0.08);
+  border-left: 3px solid #e8c37d;
+  padding: 14px 18px;
+  border-radius: 0 14px 14px 0;
+  margin-bottom: 22px;
+}
+
+.day12-dedication-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: #fbe2a8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.day12-glow-btn {
+  background: linear-gradient(135deg, #e8c37d 0%, #b8914b 100%);
+  color: #1a140d;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(232, 195, 125, 0.35);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day12-glow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(232, 195, 125, 0.55);
+}
+
+/* ==========================================================================
+   SCENE 3: DEDICATED SONG & SYNCED LYRICS PLAYER
+   ========================================================================== */
+
+.day12-player-card {
+  width: 100%;
+  background: linear-gradient(180deg, #13101c 0%, #0a0812 100%);
+  border: 1px solid rgba(232, 195, 125, 0.3);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.day12-song-header {
+  text-align: center;
+}
+
+.day12-song-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.35rem, 4vw, 1.7rem);
+  color: #fbe2a8;
+  margin: 0 0 4px 0;
+}
+
+.day12-song-artist {
+  font-size: 0.82rem;
+  color: rgba(247, 244, 237, 0.65);
+  margin: 0;
+}
+
+/* Song Selector Pills */
+.day12-song-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.day12-song-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(247, 244, 237, 0.7);
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.day12-song-pill.active {
+  background: #2a221a;
+  border-color: #e8c37d;
+  color: #fbe2a8;
+  box-shadow: 0 0 10px rgba(232, 195, 125, 0.25);
+}
+
+/* Audio Controller */
+.day12-audio-controls {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.day12-progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.day12-time-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: rgba(247, 244, 237, 0.6);
+  min-width: 36px;
+}
+
+.day12-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.day12-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b8914b, #fbe2a8);
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+
+.day12-play-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8c37d 0%, #b8914b 100%);
+  color: #1a140d;
+  font-size: 1.4rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 22px rgba(232, 195, 125, 0.4);
+  transition: all 0.2s ease;
+}
+
+.day12-play-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 8px 28px rgba(232, 195, 125, 0.6);
+}
+
+/* Synced Lyrics Container (Spotify/Apple Music Style) */
+.day12-lyrics-viewport {
+  width: 100%;
+  height: 280px;
+  background: rgba(6, 5, 10, 0.75);
+  border-radius: 20px;
+  border: 1px solid rgba(232, 195, 125, 0.2);
+  padding: 30px 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.day12-lyric-line {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
+  line-height: 1.5;
+  color: rgba(247, 244, 237, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 8px;
+  user-select: none;
+}
+
+.day12-lyric-line:hover {
+  color: rgba(247, 244, 237, 0.7);
+}
+
+.day12-lyric-line.active {
+  color: #fbe2a8;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3.8vw, 1.45rem);
+  text-shadow: 0 0 20px rgba(251, 226, 168, 0.6);
+  transform: scale(1.04);
+}
+
+/* ==========================================================================
+   SCENE 4: HER INPUT BOX AT THE END
+   ========================================================================== */
+
+.day12-input-card {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(20, 16, 26, 0.9) 0%, rgba(12, 10, 18, 0.95) 100%);
+  border: 1px solid rgba(232, 195, 125, 0.38);
+  border-radius: 24px;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(232, 195, 125, 0.1);
+  padding: clamp(24px, 5vw, 36px);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.day12-input-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.3rem, 4vw, 1.65rem);
+  color: #fbe2a8;
+  margin: 0 0 14px 0;
+  line-height: 1.4;
+}
+
+.day12-textarea {
+  width: 100%;
+  min-height: 140px;
+  background: rgba(7, 6, 12, 0.9);
+  border: 1px solid rgba(232, 195, 125, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  color: #f7f4ed;
+  line-height: 1.7;
+  box-sizing: border-box;
+  resize: vertical;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.day12-textarea:focus {
+  border-color: #fbe2a8;
+  box-shadow: 0 0 20px rgba(232, 195, 125, 0.25);
+}
+
+.day12-input-submit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.day12-confirmation-box {
+  background: rgba(232, 195, 125, 0.1);
+  border: 1px solid rgba(232, 195, 125, 0.4);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.day12-confirmation-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  color: #fbe2a8;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.day12-copy-btn {
+  background: transparent;
+  border: 1px solid rgba(251, 226, 168, 0.5);
+  color: #fbe2a8;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day12-copy-btn:hover {
+  background: rgba(251, 226, 168, 0.15);
+  transform: translateY(-1px);
+}
