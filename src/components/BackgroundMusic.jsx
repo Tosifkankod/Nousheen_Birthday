@@ -9,8 +9,8 @@ export default function BackgroundMusic() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [showToast, setShowToast] = useState(false);
 
-  // Day 3 (Cinematic story), Day 8 (Music world), & Day 9 (Scrapbook & video experience) have their own audio
-  const isExcludedDay = location.pathname === '/day/3' || location.pathname === '/day/8' || location.pathname === '/day/9';
+  // Days with their own audio experiences (Day 3, 8, 9, 12, 13)
+  const isExcludedDay = location.pathname === '/day/3' || location.pathname === '/day/8' || location.pathname === '/day/9' || location.pathname === '/day/12' || location.pathname === '/day/13';
 
   // Handle route changes: pause immediately on excluded days
   useEffect(() => {

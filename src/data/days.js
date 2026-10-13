@@ -101,10 +101,10 @@ export const DAYS = [
   {
     day: 13,
     date: '2026-10-13',
-    title: 'Almost There',
-    emoji: '🥹',
-    type: 'almost-there',
-    unlocked: false,
+    title: 'I Love You, Nousheen',
+    emoji: '🤍',
+    type: 'intimate-countdown',
+    unlocked: true,
   },
   {
     day: 14,
