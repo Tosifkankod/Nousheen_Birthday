@@ -1,0 +1,668 @@
+/* ==========================================================================
+   DAY 14 — THE FINALE · TOSIF'S VIDEO FOR NOUSHEEN 🤍
+   Deep Black, Subtle Warm Gold Particles, Cinematic & Distraction-Free
+   ========================================================================== */
+
+.day14-wrapper {
+  position: relative;
+  min-height: 100dvh;
+  background-color: #050507;
+  color: #f7f2ea;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: max(4.5rem, calc(env(safe-area-inset-top) + 3.5rem)) max(1.25rem, env(safe-area-inset-right)) max(4rem, calc(env(safe-area-inset-bottom) + 2.5rem)) max(1.25rem, env(safe-area-inset-left));
+  font-family: var(--font-sans);
+}
+
+/* Background Ambient Glows */
+.day14-bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(130px);
+  z-index: 0;
+  opacity: 0.16;
+}
+
+.day14-bg-glow-1 {
+  top: 15%;
+  left: 20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(232, 195, 125, 0.4) 0%, rgba(20, 20, 30, 0) 70%);
+}
+
+.day14-bg-glow-2 {
+  bottom: 20%;
+  right: 15%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(232, 99, 122, 0.3) 0%, rgba(10, 10, 20, 0) 75%);
+}
+
+/* Subtle Warm-Gold Particles */
+.day14-particles-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.day14-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(247, 242, 234, 0.7);
+  box-shadow: 0 0 10px rgba(232, 195, 125, 0.8), 0 0 20px rgba(232, 195, 125, 0.4);
+  animation: day14FloatUp linear infinite;
+}
+
+@keyframes day14FloatUp {
+  0% {
+    transform: translateY(105vh) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.75;
+  }
+  80% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Central Stage Container */
+.day14-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Header Pill Badge */
+.day14-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(232, 195, 125, 0.2);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: #e8c37d;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+/* ==========================================================================
+   1. CINEMATIC INTRO SCREEN
+   ========================================================================== */
+.day14-intro-card {
+  width: 100%;
+  max-width: 620px;
+  background: rgba(16, 16, 22, 0.7);
+  border: 1px solid rgba(232, 195, 125, 0.18);
+  border-radius: var(--radius-xl);
+  padding: clamp(2rem, 6vw, 3.25rem) clamp(1.25rem, 5vw, 2.5rem);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.day14-intro-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.day14-intro-line {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 3.8vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(247, 242, 234, 0.9);
+  letter-spacing: -0.01em;
+}
+
+.day14-intro-line-highlight {
+  font-size: clamp(1.4rem, 4.8vw, 1.85rem);
+  font-weight: 500;
+  color: #fcefd6;
+  text-shadow: 0 0 24px rgba(232, 195, 125, 0.45);
+}
+
+.day14-intro-line-italic {
+  font-family: var(--font-elegant);
+  font-size: clamp(1.15rem, 3.6vw, 1.35rem);
+  font-style: italic;
+  color: #e8c37d;
+}
+
+/* Prominent Play Surprise Button */
+.day14-play-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  background: linear-gradient(135deg, #e8c37d 0%, #c9933e 100%);
+  color: #0d0d12;
+  font-family: var(--font-sans);
+  font-size: clamp(0.92rem, 2.8vw, 1.05rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1.15rem 2.4rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 12px 36px rgba(232, 195, 125, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 380px;
+}
+
+.day14-play-trigger-btn:hover,
+.day14-play-trigger-btn:focus-visible {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #fcefd6 0%, #d8a04b 100%);
+  box-shadow: 0 16px 44px rgba(232, 195, 125, 0.5);
+}
+
+.day14-play-trigger-btn:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   2. DISTRACTION-FREE VIDEO PLAYER
+   ========================================================================== */
+.day14-video-section {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 0 auto;
+}
+
+.day14-video-card {
+  position: relative;
+  width: 100%;
+  max-width: min(88vw, 400px);
+  max-height: min(78vh, calc(100dvh - 9rem));
+  background: #000000;
+  border: 1px solid rgba(232, 195, 125, 0.35);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 45px rgba(232, 195, 125, 0.15);
+  aspect-ratio: 9 / 16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.day14-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+  display: block;
+  border-radius: inherit;
+}
+
+.day14-iframe-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Loading Overlay */
+.day14-video-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 7, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 5;
+  color: #fcefd6;
+}
+
+.day14-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(232, 195, 125, 0.2);
+  border-top-color: #e8c37d;
+  border-radius: 50%;
+  animation: day14Spin 0.9s linear infinite;
+}
+
+@keyframes day14Spin {
+  to { transform: rotate(360deg); }
+}
+
+.day14-video-loading-text {
+  font-family: var(--font-elegant);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: rgba(247, 242, 234, 0.85);
+}
+
+/* Play Fallback Overlay (in case browser blocked initial auto-start) */
+.day14-manual-play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  cursor: pointer;
+}
+
+.day14-manual-play-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(22, 22, 30, 0.85);
+  border: 1px solid rgba(232, 195, 125, 0.45);
+  color: #fcefd6;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.9rem 1.8rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease;
+}
+
+.day14-manual-play-btn:hover {
+  transform: scale(1.04);
+  border-color: #e8c37d;
+}
+
+/* Friendly Error Card */
+.day14-error-card {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 14, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  padding: 2rem;
+  text-align: center;
+  z-index: 7;
+}
+
+.day14-error-icon {
+  font-size: 2.5rem;
+}
+
+.day14-error-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: #fcefd6;
+}
+
+.day14-error-msg {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(247, 242, 234, 0.75);
+  max-width: 440px;
+}
+
+.day14-retry-btn {
+  background: rgba(232, 195, 125, 0.2);
+  border: 1px solid rgba(232, 195, 125, 0.45);
+  color: #fcefd6;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day14-retry-btn:hover {
+  background: rgba(232, 195, 125, 0.35);
+}
+
+/* Subtle End-Skip / Completed button for YouTube fallback */
+.day14-finished-subtle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(247, 242, 234, 0.45);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.day14-finished-subtle-btn:hover {
+  color: #e8c37d;
+}
+
+/* ==========================================================================
+   3. AFTER THE VIDEO SCREEN
+   ========================================================================== */
+.day14-after-card {
+  width: 100%;
+  max-width: 620px;
+  background: rgba(18, 18, 24, 0.82);
+  border: 1px solid rgba(232, 195, 125, 0.3);
+  border-radius: var(--radius-xl);
+  padding: clamp(2.5rem, 7vw, 3.8rem) clamp(1.5rem, 5vw, 2.5rem);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), 0 0 50px rgba(232, 195, 125, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  text-align: center;
+}
+
+.day14-after-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 5.5vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: #fcefd6;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 25px rgba(232, 195, 125, 0.4);
+}
+
+.day14-after-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.day14-after-p {
+  font-family: var(--font-elegant);
+  font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+  font-style: italic;
+  line-height: 1.7;
+  color: rgba(247, 242, 234, 0.9);
+}
+
+.day14-after-name-ar {
+  font-family: 'Amiri', serif;
+  font-size: clamp(3rem, 9vw, 4.2rem);
+  font-weight: 700;
+  color: #e8c37d;
+  text-shadow: 0 0 35px rgba(232, 195, 125, 0.65), 0 0 70px rgba(232, 195, 125, 0.3);
+  direction: rtl;
+  margin: 0.5rem 0;
+}
+
+.day14-completion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(232, 195, 125, 0.16);
+  border: 1px solid rgba(232, 195, 125, 0.45);
+  padding: 0.6rem 1.6rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  color: #fcefd6;
+  text-transform: uppercase;
+  box-shadow: 0 0 25px rgba(232, 195, 125, 0.2);
+}
+
+.day14-after-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.day14-replay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(22, 22, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(247, 242, 234, 0.85);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.day14-replay-btn:hover {
+  background: rgba(35, 35, 45, 0.9);
+  border-color: rgba(232, 195, 125, 0.4);
+  color: #fcefd6;
+  transform: translateY(-1px);
+}
+
+.day14-journey-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(232, 195, 125, 0.3) 0%, rgba(200, 150, 80, 0.2) 100%);
+  border: 1px solid rgba(232, 195, 125, 0.5);
+  color: #fcefd6;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.day14-journey-btn:hover {
+  background: linear-gradient(135deg, rgba(232, 195, 125, 0.45) 0%, rgba(200, 150, 80, 0.35) 100%);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   4. MESSAGE INPUT SECTION FOR NOUSHEEN (SYNCED TO GOOGLE SHEET)
+   ========================================================================== */
+.day14-message-input-card {
+  width: 100%;
+  background: rgba(18, 18, 25, 0.85);
+  border: 1px solid rgba(232, 195, 125, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.4rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+  margin-top: 1.25rem;
+}
+
+.day14-message-input-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.day14-message-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.day14-message-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 3.4vw, 1.3rem);
+  font-weight: 500;
+  color: #fcefd6;
+  line-height: 1.35;
+}
+
+.day14-message-subtext {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(247, 242, 234, 0.75);
+}
+
+.day14-message-textarea {
+  width: 100%;
+  min-height: 110px;
+  background: rgba(8, 8, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.95rem 1rem;
+  color: #f7f2ea;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.day14-message-textarea::placeholder {
+  color: rgba(247, 242, 234, 0.35);
+  font-style: italic;
+}
+
+.day14-message-textarea:focus {
+  border-color: rgba(232, 195, 125, 0.55);
+  background: rgba(12, 12, 18, 0.95);
+  box-shadow: 0 0 16px rgba(232, 195, 125, 0.15);
+}
+
+.day14-message-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.day14-send-msg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #e8c37d 0%, #d4a955 100%);
+  color: #0d0d12;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.95rem 2rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(232, 195, 125, 0.32);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  max-width: 320px;
+}
+
+.day14-send-msg-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #f0cf8f 0%, #deb360 100%);
+  box-shadow: 0 14px 36px rgba(232, 195, 125, 0.45);
+}
+
+.day14-send-msg-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.day14-msg-sent-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(232, 195, 125, 0.14);
+  border: 1px solid rgba(232, 195, 125, 0.35);
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  color: #fcefd6;
+  text-align: center;
+  line-height: 1.4;
+  animation: day14FadeIn 0.3s ease;
+}
+
+@keyframes day14FadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.day14-copy-msg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(22, 22, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(247, 242, 234, 0.85);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day14-copy-msg-btn:hover {
+  background: rgba(30, 30, 42, 0.85);
+  border-color: rgba(232, 195, 125, 0.4);
+  color: #fcefd6;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .day14-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .day14-intro-card,
+  .day14-after-card,
+  .day14-message-input-card {
+    padding: 1.5rem 1.15rem;
+  }
+
+  .day14-video-card {
+    border-radius: var(--radius-md);
+  }
+}

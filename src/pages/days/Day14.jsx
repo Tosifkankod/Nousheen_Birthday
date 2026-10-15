@@ -1,377 +1,558 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ReactConfetti from 'react-confetti';
-import { useWindowSize } from '../hooks/useWindowSize';
+import { useNavigate } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 import DayNav from '../../components/DayNav';
-import { BIRTHDAY_SURPRISE } from '../../data/days';
+import { saveResponse, syncPendingResponses } from '../../services/responseService';
+import { getOrCreateSessionId } from '../../utils/session';
+import { DAY14_VIDEO_URL, DAY14_CONTENT, parseVideoSource } from '../../data/day14Data';
+import './Day14.css';
 
-const CLOSING_LETTER = `I could've bought you something.
-
-But I wanted to give you something that took time.
-
-Something that only exists because you exist in my life.
-
-This entire thing — every page, every word, every line of code — was made by hand, for you.
-
-Not for a version of you.
-
-For the real one. The actual Nousheen.
-
-Happy Birthday. ❤️`;
+const STORAGE_KEYS = {
+  USER_RESPONSE: 'nousheen_day14_user_response',
+  COMPLETED: 'nousheen_day14_completed',
+  SAVED_AT: 'nousheen_day14_saved_at',
+};
 
 export default function Day14() {
-  const [phase, setPhase] = useState('boot');
-  const [count, setCount] = useState(3);
-  const [showSurprise, setShowSurprise] = useState(false);
-  const { width, height } = useWindowSize();
+  const navigate = useNavigate();
 
-  // Boot → countdown
+  // Session ID for Google Sheets tracking
+  const [sessionId, setSessionId] = useState('');
   useEffect(() => {
-    if (phase !== 'boot') return;
-    const t = setTimeout(() => setPhase('countdown'), 1400);
-    return () => clearTimeout(t);
-  }, [phase]);
+    const id = getOrCreateSessionId(14);
+    setSessionId(id);
+  }, []);
 
-  // Countdown 3-2-1
-  useEffect(() => {
-    if (phase !== 'countdown') return;
-    if (count > 0) {
-      const t = setTimeout(() => setCount(c => c - 1), 850);
-      return () => clearTimeout(t);
-    } else {
-      const t = setTimeout(() => setPhase('reveal'), 750);
-      return () => clearTimeout(t);
+  // Experience Phases: 'intro' -> 'playing' -> 'ended'
+  const [phase, setPhase] = useState('intro');
+
+  // Video State (tailored for portrait / 9:16)
+  const videoRef = useRef(null);
+  const [videoSource, setVideoSource] = useState(() => parseVideoSource(DAY14_VIDEO_URL));
+  const [aspectRatio, setAspectRatio] = useState('9 / 16');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [needsManualPlay, setNeedsManualPlay] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Message Input State (saved locally and synced to Google Sheets)
+  const [userMessage, setUserMessage] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.USER_RESPONSE) || '';
+    } catch {
+      return '';
     }
-  }, [phase, count]);
+  });
 
-  // Reveal → content
+  const [isMessageSent, setIsMessageSent] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.COMPLETED) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [isSubmittingMessage, setIsSubmittingMessage] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
+
+  // Floating background particles
+  const particles = useMemo(() => {
+    return Array.from({ length: 22 }).map((_, i) => ({
+      id: i,
+      size: Math.random() * 3 + 2,
+      left: `${Math.random() * 96}%`,
+      duration: `${Math.random() * 12 + 10}s`,
+      delay: `${Math.random() * 6}s`,
+    }));
+  }, []);
+
+  // Check URL changes if updated dynamically
   useEffect(() => {
-    if (phase !== 'reveal') return;
-    const t = setTimeout(() => setPhase('content'), 2400);
-    return () => clearTimeout(t);
-  }, [phase]);
+    setVideoSource(parseVideoSource(DAY14_VIDEO_URL));
+  }, []);
 
-  return (
-    <div
-      className="page"
-      style={{
-        minHeight: '100dvh',
-        background: '#050505',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom) + 1.5rem) max(1rem, env(safe-area-inset-left))',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Confetti */}
-      {(phase === 'content' || phase === 'surprise') && (
-        <ReactConfetti
-          width={width}
-          height={height}
-          colors={['#e8637a', '#c9a96e', '#f0899a', '#ffffff', '#f5f0eb']}
-          numberOfPieces={160}
-          recycle={false}
-          gravity={0.08}
-        />
-      )}
+  // When transitioning to 'playing', attempt to start playback
+  useEffect(() => {
+    if (phase !== 'playing') return;
 
-      {phase !== 'boot' && phase !== 'countdown' && phase !== 'reveal' && (
-        <DayNav dayNumber={14} />
-      )}
+    setIsLoading(true);
+    setHasError(false);
+    setNeedsManualPlay(false);
 
-      {/* Rose glow orb */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'clamp(300px, 80vw, 550px)',
-          height: 'clamp(300px, 80vw, 550px)',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(232, 99, 122, 0.14), transparent 70%)',
-          pointerEvents: 'none',
-          transition: 'opacity 1.5s',
-          opacity: phase === 'content' || phase === 'surprise' ? 1 : 0,
+    // If native video, attempt to play
+    if (videoSource.type === 'native' && videoRef.current) {
+      const video = videoRef.current;
+      video.currentTime = 0;
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsLoading(false);
+            setNeedsManualPlay(false);
+          })
+          .catch((err) => {
+            console.warn('[Day14] Autoplay following user click blocked or waiting:', err);
+            setIsLoading(false);
+            setNeedsManualPlay(true);
+          });
+      }
+    } else {
+      // For YouTube embeds, loading completes quickly
+      const timer = setTimeout(() => setIsLoading(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, retryCount, videoSource.type]);
+
+  // Handle manual start click
+  const handleManualPlay = () => {
+    if (videoRef.current) {
+      videoRef.current
+        .play()
+        .then(() => {
+          setNeedsManualPlay(false);
+        })
+        .catch((err) => {
+          console.warn('[Day14] Manual play attempt:', err);
+        });
+    }
+  };
+
+  // Metadata loaded handler to detect natural video aspect ratio
+  const handleLoadedMetadata = (e) => {
+    setIsLoading(false);
+    const v = e.target;
+    if (v && v.videoWidth && v.videoHeight) {
+      setAspectRatio(`${v.videoWidth} / ${v.videoHeight}`);
+    }
+  };
+
+  // Video error handler
+  const handleVideoError = () => {
+    console.warn('[Day14] Video failed to load source:', videoSource.url);
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  const handleRetry = () => {
+    setHasError(false);
+    setIsLoading(true);
+    setRetryCount((c) => c + 1);
+  };
+
+  // Video finished handler
+  const handleVideoEnded = () => {
+    setPhase('ended');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Celebration Confetti
+    try {
+      confetti({
+        particleCount: 75,
+        spread: 80,
+        origin: { y: 0.65 },
+        colors: ['#e8c37d', '#fcefd6', '#ffffff', '#e8637a', '#f0899a'],
+      });
+    } catch (_) {}
+  };
+
+  // Send message to Tosif & Google Sheets
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    if (!userMessage.trim()) return;
+
+    setIsSubmittingMessage(true);
+    try {
+      // 1. Save locally
+      localStorage.setItem(STORAGE_KEYS.USER_RESPONSE, userMessage.trim());
+      localStorage.setItem(STORAGE_KEYS.COMPLETED, 'true');
+      localStorage.setItem(STORAGE_KEYS.SAVED_AT, new Date().toISOString());
+
+      // 2. Sync to Google Sheets via responseService
+      const currentSessionId = sessionId || getOrCreateSessionId(14);
+      await saveResponse({
+        sessionId: currentSessionId,
+        day: 14,
+        questionId: 'day14_nousheen_message',
+        question: DAY14_CONTENT.inputSection.heading,
+        optionId: 'written_response',
+        answer: userMessage.trim(),
+        customText: userMessage.trim(),
+        timestamp: new Date().toISOString(),
+      });
+
+      syncPendingResponses();
+
+      setIsMessageSent(true);
+      try {
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.75 },
+          colors: ['#e8c37d', '#fcefd6', '#ffffff', '#e8637a'],
+        });
+      } catch (_) {}
+    } catch (err) {
+      console.error('Error saving Day 14 message:', err);
+    } finally {
+      setIsSubmittingMessage(false);
+    }
+  };
+
+  // Copy message to clipboard
+  const handleCopyMessage = async () => {
+    const textToCopy = `🤍 Day 14 Message for Tosif:\n\n${userMessage.trim()}\n\n— Sent with love from Nousheen 🤍`;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopiedMessage(true);
+      setTimeout(() => setCopiedMessage(false), 3000);
+    } catch (_) {}
+  };
+
+  // Reusable message input card
+  const renderMessageInputCard = () => (
+    <div className="day14-message-input-card">
+      <div className="day14-message-input-header">
+        <span className="day14-message-icon">💌</span>
+        <h3 className="day14-message-heading">
+          {DAY14_CONTENT.inputSection.heading}
+        </h3>
+      </div>
+      <p className="day14-message-subtext">
+        {DAY14_CONTENT.inputSection.subtext}
+      </p>
+
+      <textarea
+        className="day14-message-textarea"
+        value={userMessage}
+        onChange={(e) => {
+          setUserMessage(e.target.value);
+          try {
+            localStorage.setItem(STORAGE_KEYS.USER_RESPONSE, e.target.value);
+          } catch (_) {}
         }}
-        aria-hidden="true"
+        placeholder={DAY14_CONTENT.inputSection.placeholder}
+        rows={4}
+        id="day14-user-message-input"
+        aria-label="Your message to Tosif"
       />
 
-      <AnimatePresence mode="wait">
+      <div className="day14-message-actions">
+        <button
+          type="button"
+          onClick={handleSendMessage}
+          disabled={isSubmittingMessage || !userMessage.trim()}
+          className="day14-send-msg-btn"
+          id="day14-send-msg-btn"
+        >
+          {isSubmittingMessage ? 'SENDING TO TOSIF… 🤍' : DAY14_CONTENT.inputSection.buttonText}
+        </button>
 
-        {/* BOOT */}
-        {phase === 'boot' && (
-          <motion.div
-            key="boot"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-center"
-          >
-            <p
-              className="mono"
-              style={{
-                fontSize: '0.8rem',
-                color: 'rgba(255,255,255,0.3)',
-                letterSpacing: '0.2em',
-              }}
-            >
-              14 OCTOBER
-            </p>
-            <p
-              className="mono animate-pulse"
-              style={{
-                fontSize: '0.75rem',
-                color: 'rgba(255,255,255,0.2)',
-                marginTop: '0.5rem',
-                letterSpacing: '0.15em',
-              }}
-            >
-              Initializing...
-            </p>
-          </motion.div>
+        {isMessageSent && (
+          <div className="day14-msg-sent-confirm" role="status">
+            <span>✓</span>
+            <span>{DAY14_CONTENT.inputSection.confirmation}</span>
+          </div>
         )}
 
-        {/* COUNTDOWN */}
-        {phase === 'countdown' && (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={count}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.8, opacity: 0 }}
-              transition={{ duration: 0.45 }}
-              style={{ textAlign: 'center' }}
-            >
-              <span
-                className="final-countdown"
-                aria-label={count === 0 ? 'Starting' : String(count)}
-              >
-                {count === 0 ? '✦' : count}
-              </span>
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* REVEAL */}
-        {phase === 'reveal' && (
-          <motion.div
-            key="reveal"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center"
-            style={{ padding: '0 1rem' }}
+        {userMessage.trim() && (
+          <button
+            type="button"
+            onClick={handleCopyMessage}
+            className="day14-copy-msg-btn"
+            id="day14-copy-msg-btn"
           >
-            <motion.h1
-              style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: 'clamp(2.4rem, 8vw, 4.5rem)',
-                fontWeight: 400,
-                lineHeight: 1.15,
-                background: 'linear-gradient(135deg, #e8637a, #c9a96e, #f0899a)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.02em',
-              }}
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              Happy Birthday,
-              <br />
-              Nousheen
-            </motion.h1>
-            <motion.span
-              style={{ fontSize: '2.2rem', display: 'block', marginTop: '0.85rem' }}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.7, type: 'spring', stiffness: 300 }}
-              className="animate-heartbeat"
-            >
-              ❤️
-            </motion.span>
-          </motion.div>
+            {copiedMessage ? '✓ COPIED TO CLIPBOARD! 🤍' : 'COPY MESSAGE 📋'}
+          </button>
         )}
+      </div>
+    </div>
+  );
 
-        {/* MAIN CONTENT */}
-        {phase === 'content' && !showSurprise && (
-          <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            style={{ width: '100%', maxWidth: '580px', margin: '0 auto', paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 3.5rem))' }}
-          >
-            {/* Big birthday heading */}
-            <motion.div
-              className="text-center mb-4"
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <p className="mono dim mb-2" style={{ letterSpacing: '0.2em', fontSize: '0.7rem' }}>
-                OCTOBER 14 — DAY FOURTEEN
-              </p>
-              <h1
-                className="text-shimmer"
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 'clamp(1.85rem, 6.5vw, 3rem)',
-                  fontWeight: 400,
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1.2,
-                  marginBottom: '0.5rem',
-                }}
-              >
-                Happy Birthday, Nousheen ❤️
-              </h1>
-              <p className="subheading">
-                Today is all yours.
-              </p>
-            </motion.div>
+  return (
+    <div className="day14-wrapper">
+      <DayNav dayNumber={14} />
 
-            {/* The closing letter */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="card mb-4"
-              style={{ borderColor: 'rgba(232, 99, 122, 0.25)', padding: '1.5rem 1.35rem' }}
-            >
-              {CLOSING_LETTER.split('\n\n').map((para, i) => (
-                <motion.p
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 + i * 0.15 }}
-                  style={{
-                    fontFamily: 'var(--font-elegant)',
-                    fontSize: 'clamp(0.98rem, 2.8vw, 1.1rem)',
-                    fontStyle: 'italic',
-                    color: i === CLOSING_LETTER.split('\n\n').length - 1
-                      ? 'var(--rose-light)'
-                      : 'var(--white-dim)',
-                    lineHeight: 1.75,
-                    marginBottom: '0.9rem',
-                  }}
-                >
-                  {para}
-                </motion.p>
-              ))}
-            </motion.div>
+      {/* Ambient background glows */}
+      <div className="day14-bg-glow day14-bg-glow-1" aria-hidden="true" />
+      <div className="day14-bg-glow day14-bg-glow-2" aria-hidden="true" />
 
-            {/* CTA */}
+      {/* Delicate floating gold particles */}
+      <div className="day14-particles-container" aria-hidden="true">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="day14-particle"
+            style={{
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              left: p.left,
+              animationDuration: p.duration,
+              animationDelay: p.delay,
+            }}
+          />
+        ))}
+      </div>
+
+      <main className="day14-stage">
+        {/* Pill Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="day14-pill-badge"
+        >
+          <span>🤍</span>
+          <span>{DAY14_CONTENT.subBadge}</span>
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          {/* =============================================================== */}
+          {/* 1. CINEMATIC INTRO SCREEN                                       */}
+          {/* =============================================================== */}
+          {phase === 'intro' && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5 }}
-              className="text-center"
+              key="intro"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="day14-intro-card"
             >
+              <div className="day14-intro-lines-list">
+                {DAY14_CONTENT.introLines.map((line, idx) => (
+                  <motion.p
+                    key={idx}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 0.3 + idx * 0.35,
+                      duration: 0.7,
+                      ease: 'easeOut',
+                    }}
+                    className={`day14-intro-line ${
+                      line.highlight ? 'day14-intro-line-highlight' : ''
+                    } ${line.italic ? 'day14-intro-line-italic' : ''}`}
+                  >
+                    {line.text}
+                  </motion.p>
+                ))}
+              </div>
+
+              {/* Single Prominent Button */}
               <motion.button
-                className="btn-primary btn"
-                onClick={() => setShowSurprise(true)}
-                whileTap={{ scale: 0.96 }}
-                id="day14-surprise-btn"
-                style={{ fontSize: '0.98rem', padding: '0.95rem 2.2rem', width: '100%', maxWidth: '300px' }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.3 + DAY14_CONTENT.introLines.length * 0.35 + 0.4,
+                  duration: 0.6,
+                }}
+                type="button"
+                onClick={() => setPhase('playing')}
+                className="day14-play-trigger-btn"
+                id="day14-play-surprise-btn"
               >
-                One last thing →
+                <span>{DAY14_CONTENT.playButtonText}</span>
               </motion.button>
             </motion.div>
-          </motion.div>
-        )}
+          )}
 
-        {/* SURPRISE REVEAL */}
-        {showSurprise && (
-          <motion.div
-            key="surprise"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ width: '100%', maxWidth: '460px', margin: '0 auto', paddingTop: 'max(4.5rem, calc(env(safe-area-inset-top) + 3.5rem))' }}
-          >
-            <div
-              className="card text-center"
-              style={{ borderColor: 'rgba(232, 99, 122, 0.4)', padding: '2.5rem 1.5rem' }}
+          {/* =============================================================== */}
+          {/* 2. DISTRACTION-FREE VIDEO PLAYER                                */}
+          {/* =============================================================== */}
+          {phase === 'playing' && (
+            <motion.div
+              key="playing"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="day14-video-section"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
-                style={{ fontSize: '3rem', marginBottom: '1.25rem' }}
-                className="animate-float"
+              <div className="day14-video-card" style={{ aspectRatio }}>
+                {/* 1. NATIVE MP4 / DIRECT VIDEO SOURCE */}
+                {videoSource.type === 'native' && (
+                  <video
+                    ref={videoRef}
+                    key={retryCount}
+                    src={videoSource.url}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    onLoadedMetadata={handleLoadedMetadata}
+                    onCanPlay={() => setIsLoading(false)}
+                    onPlaying={() => {
+                      setIsLoading(false);
+                      setNeedsManualPlay(false);
+                    }}
+                    onWaiting={() => setIsLoading(true)}
+                    onError={handleVideoError}
+                    onEnded={handleVideoEnded}
+                    className="day14-video-element"
+                  />
+                )}
+
+                {/* 2. YOUTUBE EMBED SOURCE */}
+                {videoSource.type === 'youtube' && (
+                  <iframe
+                    src={videoSource.embedUrl}
+                    title="Nousheen Birthday Surprise"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="day14-iframe-embed"
+                    onLoad={() => setIsLoading(false)}
+                  />
+                )}
+
+                {/* Loading State Spinner */}
+                {isLoading && !hasError && (
+                  <div className="day14-video-loading">
+                    <div className="day14-spinner" />
+                    <p className="day14-video-loading-text">
+                      Loading your surprise, meri jaan…
+                    </p>
+                  </div>
+                )}
+
+                {/* Manual Play Overlay if browser blocked initial start */}
+                {needsManualPlay && !isLoading && !hasError && (
+                  <div
+                    className="day14-manual-play-overlay"
+                    onClick={handleManualPlay}
+                  >
+                    <button type="button" className="day14-manual-play-btn">
+                      <span>▶ Tap to Start Video</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Error Fallback with Retry */}
+                {hasError && (
+                  <div className="day14-error-card">
+                    <div className="day14-error-icon">🎬</div>
+                    <h3 className="day14-error-title">Video Loading</h3>
+                    <p className="day14-error-msg">
+                      Your video is being prepared or is currently uploading. You can retry anytime.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="day14-retry-btn"
+                    >
+                      Retry Playback ↺
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Discreet progress option for YouTube or manual completion */}
+              <button
+                type="button"
+                onClick={handleVideoEnded}
+                className="day14-finished-subtle-btn"
+                title="Proceed once you've finished watching"
               >
-                🎁
+                I've finished watching the surprise →
+              </button>
+
+              {/* Input tag below the video so she can send a message right here */}
+              {renderMessageInputCard()}
+            </motion.div>
+          )}
+
+          {/* =============================================================== */}
+          {/* 3. AFTER THE VIDEO FINISHES                                     */}
+          {/* =============================================================== */}
+          {phase === 'ended' && (
+            <motion.div
+              key="ended"
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="day14-after-card"
+            >
+              <h2 className="day14-after-heading">
+                {DAY14_CONTENT.afterVideo.heading}
+              </h2>
+
+              <div className="day14-after-lines-list">
+                {DAY14_CONTENT.afterVideo.lines.map((line, idx) => (
+                  <motion.p
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + idx * 0.25, duration: 0.6 }}
+                    className="day14-after-p"
+                  >
+                    {line}
+                  </motion.p>
+                ))}
+              </div>
+
+              {/* Arabic Name: نوشين */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.4, duration: 0.7 }}
+                className="day14-after-name-ar"
+                aria-label="Nousheen in Arabic"
+              >
+                {DAY14_CONTENT.afterVideo.nameAr}
               </motion.div>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: '1.15rem',
-                  fontWeight: 500,
-                  color: 'var(--white)',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                Your actual birthday gift is waiting for you.
-              </motion.p>
-
+              {/* Day 14 Complete Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.75rem' }}
+                transition={{ delay: 1.8, duration: 0.6 }}
+                className="day14-completion-badge"
               >
-                <p className="body-text">
-                  📍 {BIRTHDAY_SURPRISE.location}
-                </p>
-                <p className="body-text">
-                  🕐 {BIRTHDAY_SURPRISE.time}
-                </p>
-                <p className="body-text">
-                  {BIRTHDAY_SURPRISE.hint}
-                </p>
+                <span>🤍</span>
+                <span>{DAY14_CONTENT.afterVideo.completionBadge}</span>
               </motion.div>
 
+              {/* Input tag below the finale message so she can send her thoughts */}
+              {renderMessageInputCard()}
+
+              {/* Action Buttons */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
+                transition={{ delay: 2.1, duration: 0.5 }}
+                className="day14-after-actions"
               >
-                <div className="divider divider-center mb-3" />
-                <p
-                  style={{
-                    fontFamily: 'var(--font-elegant)',
-                    fontSize: '1.05rem',
-                    fontStyle: 'italic',
-                    color: 'var(--rose-light)',
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhase('playing');
+                    setIsLoading(true);
                   }}
+                  className="day14-replay-btn"
                 >
-                  {BIRTHDAY_SURPRISE.note}
-                </p>
+                  Watch Video Again ↺
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="day14-journey-btn"
+                >
+                  Back to Journey 🤍
+                </button>
               </motion.div>
-            </div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="text-center mono dimmer mt-4"
-              style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}
-            >
-              with love, from Tosif — October 14, 2026
-            </motion.p>
-          </motion.div>
-        )}
-
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
     </div>
   );
 }

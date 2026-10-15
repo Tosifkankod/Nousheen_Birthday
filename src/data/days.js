@@ -111,8 +111,8 @@ export const DAYS = [
     date: '2026-10-14',
     title: 'Happy Birthday, Nousheen',
     emoji: '🎂',
-    type: 'birthday',
-    unlocked: false,
+    type: 'birthday-video',
+    unlocked: true,
   },
 ];
 
