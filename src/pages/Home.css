@@ -1,0 +1,374 @@
+/* ==========================================================================
+   HOME — NOUSHEEN'S SAFE SPACE 🤍
+   All days are over: a pure, intimate, loving sanctuary
+   ========================================================================== */
+
+.home-safe-wrapper {
+  position: relative;
+  min-height: 100dvh;
+  background-color: #060608;
+  color: #f7f2ea;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: max(4.5rem, calc(env(safe-area-inset-top) + 3rem)) max(1.25rem, env(safe-area-inset-right)) max(4rem, calc(env(safe-area-inset-bottom) + 2.5rem)) max(1.25rem, env(safe-area-inset-left));
+  font-family: var(--font-sans);
+}
+
+/* Ambient Glowing Background Orbs */
+.home-bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(130px);
+  z-index: 0;
+  opacity: 0.18;
+}
+
+.home-bg-glow-1 {
+  top: 15%;
+  left: 20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(232, 195, 125, 0.4) 0%, rgba(20, 20, 30, 0) 70%);
+}
+
+.home-bg-glow-2 {
+  bottom: 20%;
+  right: 15%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(232, 99, 122, 0.3) 0%, rgba(10, 10, 20, 0) 75%);
+}
+
+/* Subtle Floating Lights & Particles */
+.home-particles-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.home-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(247, 242, 234, 0.7);
+  box-shadow: 0 0 10px rgba(232, 195, 125, 0.8), 0 0 20px rgba(232, 195, 125, 0.4);
+  animation: homeFloatUp linear infinite;
+}
+
+@keyframes homeFloatUp {
+  0% {
+    transform: translateY(105vh) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Central Stage Container */
+.home-safe-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Header Pill Badge */
+.home-safe-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(232, 195, 125, 0.25);
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: #e8c37d;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+/* Safe Space Card */
+.home-safe-card {
+  width: 100%;
+  background: rgba(18, 18, 25, 0.85);
+  border: 1px solid rgba(232, 195, 125, 0.3);
+  border-radius: var(--radius-xl);
+  padding: clamp(2rem, 6vw, 3.25rem) clamp(1.25rem, 5vw, 2.5rem);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75), 0 0 40px rgba(232, 195, 125, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+/* Handwritten Title: Love you Nousheen */
+.home-safe-title {
+  font-family: 'Alex Brush', cursive;
+  font-size: clamp(3.2rem, 11vw, 4.8rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #fcefd6;
+  text-shadow: 0 0 25px rgba(232, 195, 125, 0.4), 0 0 50px rgba(232, 195, 125, 0.2);
+  letter-spacing: 0.02em;
+  margin-top: -0.25rem;
+}
+
+/* Arabic Calligraphy: نوشين */
+.home-safe-name-ar {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2.4rem, 8vw, 3.4rem);
+  font-weight: 700;
+  color: #e8c37d;
+  text-shadow: 0 0 30px rgba(232, 195, 125, 0.55), 0 0 60px rgba(232, 195, 125, 0.25);
+  direction: rtl;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Message Card Box */
+.home-safe-message-box {
+  width: 100%;
+  background: rgba(10, 10, 15, 0.65);
+  border: 1px solid rgba(232, 195, 125, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem 1.4rem;
+  text-align: left;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.home-safe-message-p {
+  font-family: var(--font-elegant);
+  font-size: clamp(1.12rem, 3.5vw, 1.32rem);
+  font-style: italic;
+  line-height: 1.7;
+  color: rgba(247, 242, 234, 0.95);
+  margin-bottom: 1.25rem;
+}
+
+.home-safe-message-highlight {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 3.6vw, 1.35rem);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #fcefd6;
+  text-shadow: 0 0 18px rgba(232, 195, 125, 0.4);
+  margin-bottom: 0;
+  border-left: 2px solid #e8c37d;
+  padding-left: 0.9rem;
+}
+
+/* Input Section */
+.home-safe-input-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  align-items: center;
+}
+
+.home-safe-textarea {
+  width: 100%;
+  min-height: 140px;
+  background: rgba(8, 8, 12, 0.9);
+  border: 1px solid rgba(232, 195, 125, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.2rem;
+  color: #f7f2ea;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  resize: vertical;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.home-safe-textarea::placeholder {
+  color: rgba(247, 242, 234, 0.35);
+  font-style: italic;
+  font-family: var(--font-sans);
+}
+
+.home-safe-textarea:focus {
+  border-color: rgba(232, 195, 125, 0.65);
+  background: rgba(12, 12, 18, 0.95);
+  box-shadow: 0 0 20px rgba(232, 195, 125, 0.18);
+}
+
+/* Send Button */
+.home-safe-send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #e8c37d 0%, #c9933e 100%);
+  color: #0d0d12;
+  font-family: var(--font-sans);
+  font-size: clamp(0.92rem, 2.8vw, 1.02rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1.1rem 2.4rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(232, 195, 125, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  max-width: 340px;
+}
+
+.home-safe-send-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #fcefd6 0%, #d8a04b 100%);
+  box-shadow: 0 16px 40px rgba(232, 195, 125, 0.5);
+}
+
+.home-safe-send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success Confirmation Pill */
+.home-safe-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(232, 195, 125, 0.15);
+  border: 1px solid rgba(232, 195, 125, 0.4);
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: #fcefd6;
+  text-align: center;
+  line-height: 1.45;
+  animation: homeFadeIn 0.3s ease;
+}
+
+@keyframes homeFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Copy Button */
+.home-safe-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(22, 22, 30, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(247, 242, 234, 0.85);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  padding: 0.7rem 1.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-safe-copy-btn:hover {
+  background: rgba(30, 30, 42, 0.85);
+  border-color: rgba(232, 195, 125, 0.4);
+  color: #fcefd6;
+}
+
+/* Discreet Collapsible Archive Link at Bottom */
+.home-archive-section {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.home-archive-toggle-btn {
+  background: none;
+  border: none;
+  color: rgba(247, 242, 234, 0.35);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-archive-toggle-btn:hover {
+  color: #e8c37d;
+}
+
+.home-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: rgba(12, 12, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+}
+
+.home-archive-day-btn {
+  background: rgba(20, 20, 28, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.4rem;
+  color: rgba(247, 242, 234, 0.8);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.home-archive-day-btn:hover {
+  border-color: rgba(232, 195, 125, 0.4);
+  color: #fcefd6;
+  transform: translateY(-1px);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .home-safe-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .home-safe-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .home-safe-message-box {
+    padding: 1.25rem 1rem;
+  }
+}

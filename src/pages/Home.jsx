@@ -1,177 +1,278 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DAYS } from '../data/days';
-import { getCurrentDay, isDayUnlocked } from '../utils/dayUtils';
+import confetti from 'canvas-confetti';
 import StarField from '../components/StarField';
+import { saveResponse, syncPendingResponses } from '../services/responseService';
+import { getOrCreateSessionId } from '../utils/session';
+import { DAYS } from '../data/days';
+import './Home.css';
 
-const FADE_UP = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0 },
-};
-
-const STAGGER = {
-  show: { transition: { staggerChildren: 0.08 } },
+const STORAGE_KEYS = {
+  MESSAGE: 'nousheen_safespace_message',
+  COMPLETED: 'nousheen_safespace_sent',
+  SAVED_AT: 'nousheen_safespace_saved_at',
 };
 
 export default function Home() {
   const navigate = useNavigate();
-  const currentDay = getCurrentDay();
-  const [hoveredDay, setHoveredDay] = useState(null);
-  const [showIntro, setShowIntro] = useState(true);
 
+  // Session ID for Google Sheets tracking
+  const [sessionId, setSessionId] = useState('');
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 1200);
-    return () => clearTimeout(timer);
+    const id = getOrCreateSessionId('safespace');
+    setSessionId(id);
   }, []);
 
-  const handleDayClick = (day) => {
-    navigate(`/day/${day.day}`);
+  // Message input state
+  const [message, setMessage] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.MESSAGE) || '';
+    } catch {
+      return '';
+    }
+  });
+
+  const [isSent, setIsSent] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.COMPLETED) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+
+  // Floating background particles
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      size: Math.random() * 3 + 2,
+      left: `${Math.random() * 96}%`,
+      duration: `${Math.random() * 12 + 10}s`,
+      delay: `${Math.random() * 6}s`,
+    }));
+  }, []);
+
+  // Auto-save input to localStorage
+  const handleTextChange = (e) => {
+    const val = e.target.value;
+    setMessage(val);
+    try {
+      localStorage.setItem(STORAGE_KEYS.MESSAGE, val);
+    } catch (err) {
+      console.warn('LocalStorage save error:', err);
+    }
+  };
+
+  // Submit to Tosif's Google Sheet
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    if (!message.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      // 1. Save locally
+      localStorage.setItem(STORAGE_KEYS.MESSAGE, message.trim());
+      localStorage.setItem(STORAGE_KEYS.COMPLETED, 'true');
+      localStorage.setItem(STORAGE_KEYS.SAVED_AT, new Date().toISOString());
+
+      // 2. Sync to Google Sheets
+      const currentSessionId = sessionId || getOrCreateSessionId('safespace');
+      await saveResponse({
+        sessionId: currentSessionId,
+        day: 'Always',
+        questionId: 'nousheen_safe_space_confession',
+        question: "What happened, Nousheen? Please tell me everything that's on your mind. I'm here with you, my love. ❤️ I know you're more comfortable sharing your thoughts here, and I want you to feel safe telling me anything. My love, please let it all out. I'm here, I'm listening, and I'm not going anywhere. You don't have to keep anything to yourself, bachaa. ❤️",
+        optionId: 'heartfelt_confession',
+        answer: message.trim(),
+        customText: message.trim(),
+        timestamp: new Date().toISOString(),
+      });
+
+      syncPendingResponses();
+
+      setIsSent(true);
+
+      // Celebration Confetti
+      try {
+        confetti({
+          particleCount: 65,
+          spread: 75,
+          origin: { y: 0.75 },
+          colors: ['#e8c37d', '#fcefd6', '#ffffff', '#e8637a'],
+        });
+      } catch (_) {}
+    } catch (err) {
+      console.error('Error saving message:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Copy message
+  const handleCopy = async () => {
+    const textToCopy = `🤍 Message for Tosif:\n\n${message.trim()}\n\n— Sent with love from Nousheen 🤍`;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (_) {}
   };
 
   return (
-    <div className="page" style={{ minHeight: '100dvh', paddingTop: 'max(3.5rem, calc(env(safe-area-inset-top) + 2rem))', paddingBottom: 'max(3rem, calc(env(safe-area-inset-bottom) + 2rem))' }}>
+    <div className="home-safe-wrapper">
       <StarField />
-      <div className="orb orb-1" aria-hidden="true" />
-      <div className="orb orb-2" aria-hidden="true" />
 
-      <motion.div
-        className="page-content z-1"
-        variants={STAGGER}
-        initial="hidden"
-        animate="show"
-      >
-        {/* Header */}
-        <motion.div variants={FADE_UP} className="text-center mb-5">
-          <p className="mono dim mb-2" style={{ letterSpacing: '0.2em', fontSize: '0.75rem' }}>
-            OCTOBER 2026
-          </p>
-          <h1 className="display text-shimmer mb-3">
-            14 Little Things
-          </h1>
-          <p className="subheading">
-            One for every day leading to you.
-          </p>
-        </motion.div>
+      {/* Ambient background glows */}
+      <div className="home-bg-glow home-bg-glow-1" aria-hidden="true" />
+      <div className="home-bg-glow home-bg-glow-2" aria-hidden="true" />
 
-        {/* Intro message */}
-        <motion.div
-          variants={FADE_UP}
-          className="card text-center mb-5"
-          style={{ borderColor: 'rgba(232, 99, 122, 0.2)' }}
-        >
-          <p className="body-text mb-3" style={{ fontSize: '1.05rem', color: 'var(--white)' }}>
-            Hey Nousheen ❤️
-          </p>
-          <p className="body-text mb-3">
-            I could've given you one gift on your birthday...
-          </p>
-          <p className="body-text mb-3">
-            But I wanted to give you <em style={{ color: 'var(--rose-light)', fontStyle: 'italic' }}>a little something every day.</em>
-          </p>
-          <div className="divider divider-center" />
-          <p className="display-italic" style={{ fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', color: 'var(--white)' }}>
-            14 days.
-          </p>
-          <p className="subheading mt-2">
-            14 little pieces of my heart.
-          </p>
-        </motion.div>
-
-        {/* Calendar Grid */}
-        <motion.div variants={FADE_UP} className="mb-5">
-          <p className="mono dim text-center mb-3" style={{ letterSpacing: '0.15em', fontSize: '0.7rem' }}>
-            OCTOBER — TAP TO OPEN
-          </p>
+      {/* Delicate floating gold particles */}
+      <div className="home-particles-container" aria-hidden="true">
+        {particles.map((p) => (
           <div
+            key={p.id}
+            className="home-particle"
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(7, 1fr)',
-              gap: '0.5rem',
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              left: p.left,
+              animationDuration: p.duration,
+              animationDelay: p.delay,
             }}
-            role="list"
-            aria-label="14-day calendar"
-          >
-            {DAYS.map((day) => {
-              const unlocked = isDayUnlocked(day.day);
-              const isToday = day.day === currentDay;
-              const isPast = day.day < currentDay;
+          />
+        ))}
+      </div>
 
-              return (
-                <motion.div
-                  key={day.day}
-                  role="listitem"
-                  aria-label={`Day ${day.day}${unlocked ? ', unlocked' : ', locked'}`}
-                  className={`cal-day ${isToday ? 'today' : isPast ? 'unlocked' : 'locked'}`}
-                  whileHover={unlocked ? { scale: 1.12 } : {}}
-                  whileTap={unlocked ? { scale: 0.95 } : {}}
-                  onClick={() => handleDayClick(day)}
-                  onMouseEnter={() => setHoveredDay(day.day)}
-                  onMouseLeave={() => setHoveredDay(null)}
-                  style={{ cursor: unlocked ? 'pointer' : 'default', aspectRatio: '1' }}
-                  title={unlocked ? `Day ${day.day}: ${day.title}` : `Unlocks October ${day.day}`}
-                >
-                  {unlocked ? (
-                    isToday ? (
-                      <span style={{ fontSize: '1rem' }}>{day.emoji}</span>
-                    ) : (
-                      <span style={{ fontSize: '0.75rem' }}>
-                        {day.day.toString().padStart(2, '0')}
-                        <span style={{ display: 'block', fontSize: '0.6rem', opacity: 0.7 }}>❤️</span>
-                      </span>
-                    )
-                  ) : (
-                    <span style={{ fontSize: '0.75rem', opacity: 0.4 }}>🔒</span>
-                  )}
-                </motion.div>
-              );
-            })}
+      <main className="home-safe-stage">
+        {/* Header Pill */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="home-safe-badge"
+        >
+          <span>🤍</span>
+          <span>YOUR SAFE SPACE · ALWAYS WITH YOU</span>
+        </motion.div>
+
+        {/* Central Love Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="home-safe-card"
+        >
+          {/* Title: Love you Nousheen */}
+          <h1 className="home-safe-title">
+            Love you Nousheen 🤍
+          </h1>
+
+          {/* Arabic Calligraphy: نوشين */}
+          <div className="home-safe-name-ar" aria-label="Nousheen in Arabic">
+            نوشين
           </div>
 
-          {/* Hover tooltip */}
-          <AnimatePresence>
-            {hoveredDay && (
-              <motion.div
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className="text-center mt-2"
+          {/* Tosif's Exact Words */}
+          <div className="home-safe-message-box">
+            <p className="home-safe-message-p">
+              “What happened, Nousheen? Please tell me everything that's on your mind. I'm here with you, my love. ❤️ I know you're more comfortable sharing your thoughts here, and I want you to feel safe telling me anything.”
+            </p>
+
+            <p className="home-safe-message-highlight">
+              “My love, please let it all out. I'm here, I'm listening, and I'm not going anywhere. You don't have to keep anything to yourself, bachaa. ❤️”
+            </p>
+          </div>
+
+          {/* Input Box for Nousheen */}
+          <form className="home-safe-input-container" onSubmit={handleSendMessage}>
+            <textarea
+              className="home-safe-textarea"
+              value={message}
+              onChange={handleTextChange}
+              placeholder="Tell me whatever is on your mind or in your heart, Nousheen… I'm listening. 🤍"
+              rows={5}
+              id="nousheen-safe-space-input"
+              aria-label="Write to Tosif"
+            />
+
+            <button
+              type="submit"
+              disabled={isSubmitting || !message.trim()}
+              className="home-safe-send-btn"
+              id="send-to-tosif-btn"
+            >
+              {isSubmitting ? 'SENDING TO TOSIF… 🤍' : 'SEND TO TOSIF 🤍'}
+            </button>
+
+            {isSent && (
+              <div className="home-safe-confirm" role="status">
+                <span>✓</span>
+                <span>Your words have reached Tosif, bachaa. I'm right here with you. 🤍</span>
+              </div>
+            )}
+
+            {message.trim() && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="home-safe-copy-btn"
+                id="copy-safe-space-btn"
               >
-                <p className="mono dim" style={{ fontSize: '0.75rem' }}>
-                  {DAYS[hoveredDay - 1]?.emoji} {DAYS[hoveredDay - 1]?.title}
-                  {!isDayUnlocked(hoveredDay) && (
-                    <span style={{ color: 'var(--white-dimmer)' }}> — unlocks Oct {hoveredDay}</span>
-                  )}
-                </p>
+                {copied ? '✓ COPIED TO CLIPBOARD! 🤍' : 'COPY MESSAGE 📋'}
+              </button>
+            )}
+          </form>
+        </motion.div>
+
+        {/* Discreet Past Days Archive (Hidden by default, collapsed at bottom) */}
+        <div className="home-archive-section">
+          <button
+            type="button"
+            onClick={() => setShowArchive(!showArchive)}
+            className="home-archive-toggle-btn"
+            aria-expanded={showArchive}
+          >
+            {showArchive ? '▴ Hide 14 Days Memories' : '▾ Revisit 14 Days Journey (Optional)'}
+          </button>
+
+          <AnimatePresence>
+            {showArchive && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="home-archive-grid"
+              >
+                {DAYS.map((d) => (
+                  <button
+                    key={d.day}
+                    type="button"
+                    onClick={() => navigate(`/day/${d.day}`)}
+                    className="home-archive-day-btn"
+                  >
+                    <span>{d.emoji}</span>
+                    <span>Day {d.day}</span>
+                  </button>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
-
-        {/* Today's CTA */}
-        <motion.div variants={FADE_UP} className="text-center mb-5">
-          <motion.button
-            className="btn-primary btn"
-            onClick={() => navigate(`/day/${currentDay}`)}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            id="open-today-btn"
-            aria-label={`Open today's gift, Day ${currentDay}`}
-          >
-            Open Today's Gift {DAYS[currentDay - 1]?.emoji}
-          </motion.button>
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div variants={FADE_UP} className="text-center">
-          <p className="mono dimmer" style={{ fontSize: '0.7rem', letterSpacing: '0.1em' }}>
-            Come back tomorrow. 🌙
-          </p>
-          <p className="mono dimmer mt-1" style={{ fontSize: '0.65rem', letterSpacing: '0.08em' }}>
-            Made by Tosif, for Nousheen — October 2026
-          </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </main>
     </div>
   );
 }
