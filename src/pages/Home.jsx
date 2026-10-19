@@ -275,7 +275,7 @@ export default function Home() {
             </p>
 
             <p className="home-letter-p">
-              Nousheen, please trust me. I've seen the proofs, and I know what we have is real. My love, please don't leave me, yaar. Please, I'm begging you. I don't want to lose you. I want us to trust each other and get through this difficult phase together. I know you have doubts and fears, but bachaa, I want you to believe in me and in the love we share.
+              Nousheen, please trust me. My love, please don't leave me, yaar. Please, I'm begging you. I don't want to lose you. I want us to trust each other and get through this difficult phase together. I know you have doubts and fears, but bachaa, I want you to believe in me and in the love we share.
             </p>
 
             <p className="home-letter-p">
