@@ -82,7 +82,7 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -148,36 +148,326 @@
   margin-bottom: 0.5rem;
 }
 
-/* Message Card Box */
+/* Letter Card Box */
 .home-safe-message-box {
   width: 100%;
-  background: rgba(10, 10, 15, 0.65);
-  border: 1px solid rgba(232, 195, 125, 0.2);
+  background: linear-gradient(180deg, rgba(16, 16, 24, 0.82) 0%, rgba(10, 10, 15, 0.92) 100%);
+  border: 1px solid rgba(232, 195, 125, 0.28);
   border-radius: var(--radius-lg);
-  padding: 1.6rem 1.4rem;
+  padding: clamp(1.5rem, 5vw, 2.4rem) clamp(1.2rem, 4.5vw, 2.2rem);
   text-align: left;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 15px 45px rgba(0, 0, 0, 0.6);
+  position: relative;
 }
 
-.home-safe-message-p {
-  font-family: var(--font-elegant);
-  font-size: clamp(1.12rem, 3.5vw, 1.32rem);
-  font-style: italic;
-  line-height: 1.7;
-  color: rgba(247, 242, 234, 0.95);
+.home-letter-salutation {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(1.25rem, 4vw, 1.55rem);
+  font-weight: 700;
+  color: #fcefd6;
+  text-shadow: 0 0 20px rgba(232, 195, 125, 0.35);
+  margin-bottom: 1.35rem;
+  letter-spacing: 0.01em;
+}
+
+.home-letter-p {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(1.04rem, 3.2vw, 1.16rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.85;
+  color: #ffffff;
   margin-bottom: 1.25rem;
+  letter-spacing: 0.01em;
 }
 
-.home-safe-message-highlight {
-  font-family: var(--font-serif);
-  font-size: clamp(1.15rem, 3.6vw, 1.35rem);
-  font-weight: 500;
-  line-height: 1.6;
+.home-letter-highlight {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(1.08rem, 3.4vw, 1.22rem);
+  font-weight: 600;
+  line-height: 1.75;
   color: #fcefd6;
   text-shadow: 0 0 18px rgba(232, 195, 125, 0.4);
+  margin: 1.45rem 0;
+  padding: 1rem 1.25rem;
+  background: rgba(232, 195, 125, 0.1);
+  border-left: 3.5px solid #e8c37d;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  box-shadow: inset 0 0 15px rgba(232, 195, 125, 0.04);
+}
+
+.home-letter-closing {
+  margin-top: 1.4rem;
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.home-letter-signoff {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.9rem, 6.5vw, 2.6rem);
+  font-style: italic;
+  font-weight: 600;
+  color: #fcefd6;
+  text-shadow: 0 0 25px rgba(232, 195, 125, 0.55);
+  margin-top: 1rem;
   margin-bottom: 0;
-  border-left: 2px solid #e8c37d;
-  padding-left: 0.9rem;
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+
+/* 4 Yes or No Questions Card */
+.home-questions-card {
+  width: 100%;
+  background: rgba(16, 16, 24, 0.85);
+  border: 1px solid rgba(232, 195, 125, 0.28);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.4rem, 4vw, 2rem) clamp(1.1rem, 3.5vw, 1.8rem);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 35px rgba(0, 0, 0, 0.5);
+}
+
+.home-questions-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(232, 195, 125, 0.18);
+}
+
+.home-questions-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.home-questions-title {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.15rem, 3.6vw, 1.35rem);
+  font-weight: 700;
+  color: #fcefd6;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.home-questions-sub {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0.3rem 0 0 0;
+  line-height: 1.5;
+}
+
+.home-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.home-q-item {
+  background: rgba(10, 10, 15, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.home-q-item:hover {
+  border-color: rgba(232, 195, 125, 0.35);
+  background: rgba(14, 14, 20, 0.85);
+}
+
+.home-q-top-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.home-q-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.02rem, 3.2vw, 1.14rem);
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.45;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.home-q-num {
+  color: #e8c37d;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.home-q-saving-tag {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #e8c37d;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.home-q-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.home-q-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.home-q-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.home-q-btn.selected-yes {
+  background: linear-gradient(135deg, rgba(232, 195, 125, 0.3), rgba(201, 169, 110, 0.2));
+  border-color: #e8c37d;
+  color: #fcefd6;
+  box-shadow: 0 0 20px rgba(232, 195, 125, 0.35);
+}
+
+.home-q-btn.selected-no {
+  background: linear-gradient(135deg, rgba(232, 99, 122, 0.25), rgba(180, 60, 80, 0.15));
+  border-color: #e8637a;
+  color: #ffc2cd;
+  box-shadow: 0 0 18px rgba(232, 99, 122, 0.25);
+}
+
+.home-q-btn-icon {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* Reply Wrapper Box */
+.home-reply-wrapper {
+  width: 100%;
+  background: rgba(14, 14, 20, 0.65);
+  border: 1px solid rgba(232, 195, 125, 0.22);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.4rem, 4vw, 2rem) clamp(1.1rem, 3.5vw, 1.8rem);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.home-reply-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(232, 195, 125, 0.15);
+}
+
+.home-reply-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(232, 195, 125, 0.5));
+}
+
+.home-reply-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.home-reply-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 3.8vw, 1.45rem);
+  font-weight: 600;
+  color: #fcefd6;
+  text-shadow: 0 0 18px rgba(232, 195, 125, 0.35);
+  margin: 0;
+}
+
+.home-reply-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(247, 242, 234, 0.7);
+  margin: 0;
+}
+
+.home-reply-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.home-reply-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: #e8c37d;
+  text-transform: uppercase;
+}
+
+.home-reply-label-hint {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: rgba(247, 242, 234, 0.5);
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+}
+
+.home-reply-name-input {
+  width: 100%;
+  background: rgba(8, 8, 12, 0.9);
+  border: 1px solid rgba(232, 195, 125, 0.28);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: #f7f2ea;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.home-reply-name-input::placeholder {
+  color: rgba(247, 242, 234, 0.35);
+  font-style: italic;
+}
+
+.home-reply-name-input:focus {
+  border-color: rgba(232, 195, 125, 0.65);
+  background: rgba(12, 12, 18, 0.95);
+  box-shadow: 0 0 18px rgba(232, 195, 125, 0.15);
 }
 
 /* Input Section */
@@ -265,6 +555,48 @@
   text-align: center;
   line-height: 1.45;
   animation: homeFadeIn 0.3s ease;
+}
+
+/* Live sync status pill */
+.home-sync-status-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(232, 195, 125, 0.22);
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(247, 242, 234, 0.9);
+  margin-top: 0.2rem;
+  animation: homeFadeIn 0.3s ease;
+}
+
+.home-sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #50c878;
+  box-shadow: 0 0 8px #50c878;
+  transition: all 0.2s ease;
+}
+
+.home-sync-dot[data-status="typing"] {
+  background: #f5b041;
+  box-shadow: 0 0 8px #f5b041;
+}
+
+.home-sync-dot[data-status="syncing"] {
+  background: #e8c37d;
+  box-shadow: 0 0 10px #e8c37d;
+  animation: pulseDot 1s infinite alternate;
+}
+
+@keyframes pulseDot {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.15); }
 }
 
 @keyframes homeFadeIn {
